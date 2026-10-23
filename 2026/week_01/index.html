@@ -1,0 +1,196 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>AUREUS week 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+
+<style>
+/* Pagina della partita: testata a tabellone, poi sezioni a due colonne (ospite, casa) che diventano una sola su
+   telefono. Cifre sempre in colonna. */
+:root {
+  --bg: #f3f4f1; --carta: #ffffff; --ink: #172026; --ink2: #56636b; --riga: #dde2df;
+  --accento: #b8560f; --ospite: #2f5d8a; --casa: #8a3b2f; --ok: #1d7a46; --fuori: #b3261e; --sopra: #1d6a8a; --sotto: #a8541a; --ombra: rgba(23,32,38,.06);
+  --f-display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-testo: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12171a; --carta: #1a2125; --ink: #e8ece9; --ink2: #9aa7ad; --riga: #2c363b;
+  --accento: #e8873e; --ospite: #7fb0de; --casa: #e0897a; --ok: #5cc98a; --fuori: #f07a70; --sopra: #6cc0e0; --sotto: #f0a25e; --ombra: rgba(0,0,0,.3);
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #12171a; --carta: #1a2125; --ink: #e8ece9; --ink2: #9aa7ad; --riga: #2c363b;
+  --accento: #e8873e; --ospite: #7fb0de; --casa: #e0897a; --ok: #5cc98a; --fuori: #f07a70; --sopra: #6cc0e0; --sotto: #f0a25e; --ombra: rgba(0,0,0,.3);
+  color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--f-testo);
+  font-variant-numeric: tabular-nums; }
+.pagina { max-width: 1180px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 22px; }
+a { color: var(--accento); }
+.su { font-size: 13px; color: var(--ink2); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.tabellone { background: var(--carta); border: 1px solid var(--riga); border-radius: 10px; padding: 18px 18px 16px;
+  display: flex; flex-direction: column; gap: 16px; box-shadow: 0 1px 2px var(--ombra); }
+.quando { font-size: 13px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
+.sq { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sq.casa { text-align: right; }
+.sq .sigla { font: 600 15px var(--f-display); letter-spacing: .08em; }
+.sq.ospite .sigla { color: var(--ospite); } .sq.casa .sigla { color: var(--casa); }
+.sq .nomesq { font: 600 clamp(18px, 3.2vw, 28px)/1.1 var(--f-display); text-wrap: balance; }
+.sq .ruolo-sq { font-size: 12px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.punteggio { display: flex; align-items: baseline; gap: 10px; font: 700 clamp(40px, 8vw, 68px)/1 var(--f-display); }
+.punteggio .trattino { color: var(--ink2); font-weight: 400; }
+.finale { text-align: center; font-size: 13px; color: var(--ink2); }
+.finale b { color: var(--ink); font-family: var(--f-display); font-size: 18px; letter-spacing: .02em; }
+.barra { display: flex; flex-direction: column; gap: 6px; }
+.barra .lab { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink2); }
+.barra .lab b { color: var(--ink); font-family: var(--f-display); font-size: 17px; }
+.barra .tr { height: 10px; border-radius: 5px; overflow: hidden; display: flex; background: var(--riga); }
+.barra .o { background: var(--ospite); } .barra .c { background: var(--casa); }
+.dati { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--ink2); }
+.dati b { color: var(--ink); font-weight: 600; }
+.quarti { width: 100%; border-collapse: collapse; font-size: 14px; }
+.quarti th, .quarti td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--riga); }
+.quarti th:first-child, .quarti td:first-child { text-align: left; }
+.quarti thead th { font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.quarti td.tot { font-weight: 700; }
+nav.indice { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--riga); align-items: center; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--bg); }
+nav.indice a { text-decoration: none; color: var(--ink); font: 600 14px var(--f-display); letter-spacing: .06em;
+  text-transform: uppercase; padding: 6px 10px; border-radius: 6px; }
+nav.indice a:hover, nav.indice a:focus-visible { background: var(--carta); outline: 2px solid var(--accento); }
+.interruttore { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); }
+.interruttore input { accent-color: var(--accento); width: 16px; height: 16px; }
+.legenda { font-size: 12px; color: var(--ink2); display: flex; gap: 14px; flex-wrap: wrap; }
+.leg-ok { color: var(--ok); } .leg-fuori { color: var(--fuori); }
+#squadra .scroll { max-width: 760px; }
+.prevlab { text-align: center; font-size: 12px; color: var(--ink2); text-transform: uppercase; letter-spacing: .08em; }
+.blocco { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 60px; }
+.blocco h2 { margin: 0; font: 700 26px var(--f-display); letter-spacing: .02em; text-transform: uppercase; }
+/* ospite (sx) e casa (dx) sulla stessa riga per ogni tabella: riquadri allineati; su telefono prima l'ospite */
+.lati { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; row-gap: 14px;
+  align-items: start; }
+.lati > div { min-width: 0; }
+@media (max-width: 860px) { .lati { grid-template-columns: minmax(0, 1fr); } .lati > .sx { order: 1; }
+  .lati > .dx { order: 2; } .lati > h3.dx { margin-top: 10px; } }
+.lati > h3 { margin: 0; font: 600 18px var(--f-display); letter-spacing: .04em; text-transform: uppercase;
+  border-bottom: 3px solid var(--ink); padding-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.lati > h3 .mini, .sch-sq .mini { margin-right: 0; vertical-align: 0; }
+.sch-sq { gap: 6px; }
+.lati > h3, .sch-top { border-bottom-color: var(--s1); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lati > h3,
+  :root:not([data-theme="light"]) .sch-top { border-bottom-color: var(--s2); } }
+:root[data-theme="dark"] .lati > h3, :root[data-theme="dark"] .sch-top { border-bottom-color: var(--s2); }
+.tabblock { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tabblock h4 { margin: 0; font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase;
+  letter-spacing: .08em; }
+.scroll { overflow-x: auto; background: var(--carta); border: 1px solid var(--riga); border-radius: 8px; }
+table.tab { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+table.tab th, table.tab td { padding: 6px 8px; border-bottom: 1px solid var(--riga); text-align: right;
+  vertical-align: top; white-space: nowrap; }
+table.tab thead th { font: 600 11.5px var(--f-testo); color: var(--ink2); text-transform: uppercase; letter-spacing: .05em;
+  background: var(--carta); }
+table.tab tbody tr:last-child th, table.tab tbody tr:last-child td { border-bottom: 0; }
+table.tab th.nome { text-align: left; font-weight: 400; position: sticky; left: 0; background: var(--carta); }
+th.nome .n { font-weight: 600; }
+th.nome .ru { color: var(--ink2); font-size: 11.5px; margin-left: 6px; }
+th.nome .prob { color: var(--accento); font-size: 11.5px; margin-left: 6px; }
+table.squadra th { text-align: left; font-weight: 400; }
+table.squadra thead th { text-align: right; font: 600 13px var(--f-display); letter-spacing: .08em; }
+table.squadra thead th:nth-child(2) { color: var(--ospite); } table.squadra thead th:nth-child(3) { color: var(--casa); }
+table.squadra tr.sub th { color: var(--ink2); }
+td.vuoto { text-align: left; color: var(--ink2); }
+.pv { display: block; font-weight: 600; }
+.iv { display: none; font-size: 11px; color: var(--ink2); }
+.mostra-int .iv { display: block; }
+.rv { display: block; font-size: 12px; color: var(--ink2); }
+.rv::before { content: "reale "; font-size: 10.5px; }
+.rv .dl { font-size: 11px; }
+.rv.sopra { color: var(--sopra); } .rv.sotto { color: var(--sotto); }
+.rv.msopra, .rv.msotto { font-weight: 700; color: var(--carta); border-radius: 4px; padding: 0 4px; margin-top: 2px;
+  display: inline-block; }
+.rv.msopra { background: var(--sopra); } .rv.msotto { background: var(--sotto); }
+.rv.ev::before { content: ""; } .rv.ev.si { color: var(--ink); font-weight: 600; }
+.leg { display: inline-block; border-radius: 4px; padding: 0 4px; font-weight: 600; }
+.leg.sopra { color: var(--sopra); } .leg.sotto { color: var(--sotto); }
+.leg.msopra { background: var(--sopra); color: var(--carta); } .leg.msotto { background: var(--sotto); color: var(--carta); }
+footer { font-size: 12px; color: var(--ink2); border-top: 1px solid var(--riga); padding-top: 12px; }
+.elenco { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.elenco a { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ink);
+  background: var(--carta); border: 1px solid var(--riga); border-radius: 10px; padding: 14px; }
+.elenco a:hover, .elenco a:focus-visible { outline: 2px solid var(--accento); }
+.elenco .riga1 { display: flex; justify-content: space-between; font: 600 18px var(--f-display); letter-spacing: .04em; }
+.elenco .riga2 { font-size: 12.5px; color: var(--ink2); }
+/* carta della partita nell'indice della week: data, due righe squadra (logo, sigla, nome, punti attesi,
+   probabilita'), barra della vittoria nei colori delle squadre, favorita */
+.elenco a.carta { gap: 8px; }
+.carta .quando-p { font-size: 12.5px; color: var(--ink2); }
+.elenco:has(.carta) { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+.carta .intest, .carta .sqr { display: grid; grid-template-columns: 26px 44px minmax(0, 1fr) 92px 64px;
+  align-items: center; column-gap: 8px; }
+.carta .intest { white-space: nowrap; font-size: 10.5px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.carta .intest span:nth-child(n+3) { text-align: right; }
+.carta .sqr { font-size: 15px; color: var(--ink2); }
+.carta .sqr .ab { font: 600 17px var(--f-display); letter-spacing: .04em; color: var(--ink); }
+.carta .sqr .nk { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.carta .sqr .pt, .carta .sqr .pc { text-align: right; font-variant-numeric: tabular-nums; }
+.carta .sqr.fav { color: var(--ink); font-weight: 600; }
+.carta .vbar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 2px; }
+.carta .vbar span { display: block; min-width: 0; } .carta .vbar span:last-child { flex: 1 1 auto; }
+.carta .nota-p { font-size: 12.5px; color: var(--ink2); }
+/* loghi, distintivi, avatar */
+.lg { position: relative; display: inline-grid; flex: none; }
+.lg > * { grid-area: 1 / 1; }
+.lg img { width: 100%; height: 100%; object-fit: contain; }
+.lg img { opacity: 0; } .lg.ok img { opacity: 1; } .lg.ok .badge { visibility: hidden; }  /* il distintivo resta finche' il logo non arriva */
+.logo { width: 60px; height: 60px; }
+.sq.casa .logo { align-self: flex-end; }
+.mini { width: 22px; height: 22px; vertical-align: -5px; margin-right: 6px; }
+.badge { display: inline-grid; place-items: center; border-radius: 50%; background: var(--c); color: #fff;
+  border: 3px solid var(--c2); font: 700 15px var(--f-display); letter-spacing: .02em; }
+.badge.mini { border-width: 2px; font-size: 8.5px; }
+.elenco .match { display: inline-flex; align-items: center; gap: 0; }
+.elenco .match .mini:not(:first-child) { margin-left: 6px; }
+.av { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--c); color: #fff; font: 700 10.5px var(--f-testo); overflow: hidden; flex: none; }
+.av > * { grid-area: 1 / 1; }
+.av img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; }
+.av img { opacity: 0; } .av.ok img { opacity: 1; } .av.ok > span { visibility: hidden; }  /* le iniziali restano finche' la foto non arriva */
+.av.av-l { width: 92px; height: 92px; font-size: 28px; border: 3px solid var(--c); }
+button.gioc { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border-radius: 6px; }
+button.gioc:hover .n { text-decoration: underline; text-underline-offset: 3px; }
+button.gioc:focus-visible { outline: 2px solid var(--accento); outline-offset: 2px; }
+table.tab th.nome { vertical-align: middle; }
+/* scheda del giocatore: pannello a destra, a tutto schermo su telefono */
+dialog.scheda { padding: 0; border: 0; margin: 0 0 0 auto; width: min(560px, 100vw); max-width: 100vw;
+  height: 100dvh; max-height: 100dvh; background: var(--bg); color: var(--ink); box-shadow: -10px 0 40px rgba(0,0,0,.35);
+  overscroll-behavior: contain; }
+dialog.scheda::backdrop { background: rgba(10,14,16,.55); }
+.sch { display: flex; flex-direction: column; gap: 18px; padding: 0 16px 36px; }
+.sch-barra { position: sticky; top: 0; z-index: 2; background: var(--bg); display: flex; justify-content: space-between;
+  align-items: center; padding: max(10px, env(safe-area-inset-top, 0px)) 0 10px; border-bottom: 1px solid var(--riga);
+  font-size: 13px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.chiudi { all: unset; cursor: pointer; font-size: 30px; line-height: 1; width: 44px; height: 44px; display: grid;
+  place-items: center; border-radius: 50%; color: var(--ink); }
+.chiudi:hover, .chiudi:focus-visible { background: var(--carta); outline: 2px solid var(--accento); }
+.sch-top { display: flex; gap: 16px; align-items: center; padding-bottom: 14px; border-bottom: 3px solid; }
+.sch-top h3 { margin: 0 0 4px; font: 700 28px/1.05 var(--f-display); letter-spacing: .01em; }
+.sch-top > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sch-sq { font-size: 14px; color: var(--ink2); display: flex; align-items: center; }
+.pg { font-size: 13px; color: var(--ink2); } .pg b { color: var(--accento); }
+.sch-sez { display: flex; flex-direction: column; gap: 10px; }
+.sch-sez h2 { margin: 0; font: 700 20px var(--f-display); text-transform: uppercase; letter-spacing: .03em; }
+.sch .iv { display: block; }
+table.tab.vert th { text-align: left; font-weight: 600; width: 55%; }
+table.tab.vert td { text-align: right; }
+.sch table.tab tbody th { text-align: left; font-weight: 600; }
+.perche { margin: 0; border: 1px dashed var(--riga); border-radius: 8px; padding: 12px 14px; color: var(--ink2);
+  font-size: 13.5px; }
+p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) { nav.indice a { transition: background .15s; } }
+</style><div class="pagina"><div class="su"><a href="../../index.html">&larr; Tutte le week</a></div><header class="tabellone"><div class="quando">Stagione 2026</div><div class="sq"><span class="nomesq">Week 1</span><span class="ruolo-sq">16 partite</span></div></header><div class="elenco"><a class="carta" href="NE_SEA.html"><span class="quando-p">giovedi' 10 settembre 2026, ore 02:20</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#002244;--c2:#C60C30" aria-hidden="true">NE</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/ne.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">NE</span><span class="nk">Patriots</span><span class="pt">20,1</span><span class="pc">38%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#002244;--c2:#69be28" aria-hidden="true">SEA</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/sea.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">SEA</span><span class="nk">Seahawks</span><span class="pt">23,8</span><span class="pc">62%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 38.3%;background:#C60C30"></span><span style="background:#69be28"></span></span><span class="nota-p">SEA favorita di 3,7 punti &middot; finale 10&ndash;13</span></a><a class="carta" href="SF_LA.html"><span class="quando-p">venerdi' 11 settembre 2026, ore 02:35</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#AA0000;--c2:#B3995D" aria-hidden="true">SF</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/sf.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">SF</span><span class="nk">49ers</span><span class="pt">21,3</span><span class="pc">42%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#003594;--c2:#FFD100" aria-hidden="true">LA</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/lar.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">LA</span><span class="nk">Rams</span><span class="pt">23,8</span><span class="pc">58%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 42.0%;background:#AA0000"></span><span style="background:#003594"></span></span><span class="nota-p">LA favorita di 2,5 punti &middot; finale 27&ndash;7</span></a><a class="carta" href="ATL_PIT.html"><span class="quando-p">domenica 13 settembre 2026, ore 19:00</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#A71930;--c2:#000000" aria-hidden="true">ATL</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/atl.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">ATL</span><span class="nk">Falcons</span><span class="pt">18,6</span><span class="pc">33%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#000000;--c2:#FFB612" aria-hidden="true">PIT</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/pit.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">PIT</span><span class="nk">Steelers</span><span class="pt">24,0</span><span class="pc">67%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 33.0%;background:#A71930"></span><span style="background:#FFB612"></span></span><span class="nota-p">PIT favorita di 5,4 punti &middot; finale 13&ndash;20</span></a><a class="carta" href="BAL_IND.html"><span class="quando-p">domenica 13 settembre 2026, ore 19:00</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#241773;--c2:#9E7C0C" aria-hidden="true">BAL</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">BAL</span><span class="nk">Ravens</span><span class="pt">24,6</span><span class="pc">51%</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#002C5F;--c2:#a5acaf" aria-hidden="true">IND</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/ind.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">IND</span><span class="nk">Colts</span><span class="pt">24,3</span><span class="pc">49%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 50.9%;background:#241773"></span><span style="background:#002C5F"></span></span><span class="nota-p">BAL favorita di 0,3 punti &middot; finale 41&ndash;23</span></a><a class="carta" href="BUF_HOU.html"><span class="quando-p">domenica 13 settembre 2026, ore 19:00</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#00338D;--c2:#C60C30" aria-hidden="true">BUF</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">BUF</span><span class="nk">Bills</span><span class="pt">23,7</span><span class="pc">49%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#03202F;--c2:#A71930" aria-hidden="true">HOU</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/hou.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">HOU</span><span class="nk">Texans</span><span class="pt">24,1</span><span class="pc">51%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 48.6%;background:#00338D"></span><span style="background:#A71930"></span></span><span class="nota-p">HOU favorita di 0,4 punti &middot; finale 36&ndash;31</span></a><a class="carta" href="CHI_CAR.html"><span class="quando-p">domenica 13 settembre 2026, ore 19:00</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#0B162A;--c2:#E64100" aria-hidden="true">CHI</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/chi.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">CHI</span><span class="nk">Bears</span><span class="pt">24,7</span><span class="pc">59%</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#0085CA;--c2:#000000" aria-hidden="true">CAR</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500-dark/car.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">CAR</span><span class="nk">Panthers</span><span class="pt">21,8</span><span class="pc">41%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 59.2%;background:#E64100"></span><span style="background:#0085CA"></span></span><span class="nota-p">CHI favorita di 2,9 punti &middot; finale 59&ndash;37</span></a><a class="carta" href="CLE_JAX.html"><span class="quando-p">domenica 13 settembre 2026, ore 19:00</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#FF3C00;--c2:#311D00" aria-hidden="true">CLE</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/cle.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">CLE</span><span class="nk">Browns</span><span class="pt">16,6</span><span class="pc">24%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#006778;--c2:#000000" aria-hidden="true">JAX</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/jax.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">JAX</span><span class="nk">Jaguars</span><span class="pt">25,3</span><span class="pc">76%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 24.3%;background:#FF3C00"></span><span style="background:#006778"></span></span><span class="nota-p">JAX favorita di 8,6 punti &middot; finale 10&ndash;34</span></a><a class="carta" href="NO_DET.html"><span class="quando-p">domenica 13 settembre 2026, ore 19:00</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#D3BC8D;--c2:#000000" aria-hidden="true">NO</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/no.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">NO</span><span class="nk">Saints</span><span class="pt">20,1</span><span class="pc">26%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#0076B6;--c2:#B0B7BC" aria-hidden="true">DET</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/det.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">DET</span><span class="nk">Lions</span><span class="pt">28,1</span><span class="pc">74%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 25.9%;background:#D3BC8D"></span><span style="background:#0076B6"></span></span><span class="nota-p">DET favorita di 8,0 punti &middot; finale 30&ndash;31</span></a><a class="carta" href="NYJ_TEN.html"><span class="quando-p">domenica 13 settembre 2026, ore 19:00</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#003F2D;--c2:#000000" aria-hidden="true">NYJ</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">NYJ</span><span class="nk">Jets</span><span class="pt">21,9</span><span class="pc">46%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#4495D2;--c2:#D50A0A" aria-hidden="true">TEN</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/ten.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">TEN</span><span class="nk">Titans</span><span class="pt">23,1</span><span class="pc">54%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 46.3%;background:#003F2D"></span><span style="background:#4495D2"></span></span><span class="nota-p">TEN favorita di 1,2 punti &middot; finale 23&ndash;10</span></a><a class="carta" href="TB_CIN.html"><span class="quando-p">domenica 13 settembre 2026, ore 19:00</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#A71930;--c2:#322F2B" aria-hidden="true">TB</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/tb.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">TB</span><span class="nk">Buccaneers</span><span class="pt">23,7</span><span class="pc">47%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#FB4F14;--c2:#000000" aria-hidden="true">CIN</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/cin.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">CIN</span><span class="nk">Bengals</span><span class="pt">24,6</span><span class="pc">53%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 47.0%;background:#A71930"></span><span style="background:#FB4F14"></span></span><span class="nota-p">CIN favorita di 0,9 punti &middot; finale 27&ndash;33</span></a><a class="carta" href="ARI_LAC.html"><span class="quando-p">domenica 13 settembre 2026, ore 22:25</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#97233F;--c2:#000000" aria-hidden="true">ARI</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/ari.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">ARI</span><span class="nk">Cardinals</span><span class="pt">19,0</span><span class="pc">32%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#007BC7;--c2:#ffc20e" aria-hidden="true">LAC</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/lac.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">LAC</span><span class="nk">Chargers</span><span class="pt">24,9</span><span class="pc">68%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 31.7%;background:#97233F"></span><span style="background:#007BC7"></span></span><span class="nota-p">LAC favorita di 5,9 punti &middot; finale 26&ndash;14</span></a><a class="carta" href="GB_MIN.html"><span class="quando-p">domenica 13 settembre 2026, ore 22:25</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#203731;--c2:#FFB612" aria-hidden="true">GB</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">GB</span><span class="nk">Packers</span><span class="pt">19,8</span><span class="pc">37%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#4F2683;--c2:#FFC62F" aria-hidden="true">MIN</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/min.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">MIN</span><span class="nk">Vikings</span><span class="pt">24,0</span><span class="pc">63%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 36.8%;background:#203731"></span><span style="background:#4F2683"></span></span><span class="nota-p">MIN favorita di 4,2 punti &middot; finale 22&ndash;39</span></a><a class="carta" href="MIA_LV.html"><span class="quando-p">domenica 13 settembre 2026, ore 22:25</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#008E97;--c2:#F58220" aria-hidden="true">MIA</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">MIA</span><span class="nk">Dolphins</span><span class="pt">22,3</span><span class="pc">58%</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#000000;--c2:#A5ACAF" aria-hidden="true">LV</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/lv.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">LV</span><span class="nk">Raiders</span><span class="pt">19,9</span><span class="pc">42%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 57.6%;background:#008E97"></span><span style="background:#A5ACAF"></span></span><span class="nota-p">MIA favorita di 2,4 punti &middot; finale 13&ndash;27</span></a><a class="carta" href="WAS_PHI.html"><span class="quando-p">domenica 13 settembre 2026, ore 22:25</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#5A1414;--c2:#FFB612" aria-hidden="true">WAS</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">WAS</span><span class="nk">Commanders</span><span class="pt">19,3</span><span class="pc">29%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#004C54;--c2:#A5ACAF" aria-hidden="true">PHI</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">PHI</span><span class="nk">Eagles</span><span class="pt">26,3</span><span class="pc">71%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 28.6%;background:#5A1414"></span><span style="background:#004C54"></span></span><span class="nota-p">PHI favorita di 7,0 punti &middot; finale 22&ndash;24</span></a><a class="carta" href="DAL_NYG.html"><span class="quando-p">lunedi' 14 settembre 2026, ore 02:20</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#002244;--c2:#B0B7BC" aria-hidden="true">DAL</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/dal.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">DAL</span><span class="nk">Cowboys</span><span class="pt">22,9</span><span class="pc">46%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#0B2265;--c2:#A71930" aria-hidden="true">NYG</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">NYG</span><span class="nk">Giants</span><span class="pt">24,2</span><span class="pc">54%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 45.7%;background:#B0B7BC"></span><span style="background:#0B2265"></span></span><span class="nota-p">NYG favorita di 1,3 punti &middot; finale 20&ndash;28</span></a><a class="carta" href="DEN_KC.html"><span class="quando-p">martedi' 15 settembre 2026, ore 02:15</span><span class="intest"><span></span><span></span><span>punti attesi</span><span>vittoria</span></span><span class="sqr"><span class="lg mini"><span class="badge mini" style="--c:#002244;--c2:#FB4F14" aria-hidden="true">DEN</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/den.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">DEN</span><span class="nk">Broncos</span><span class="pt">18,7</span><span class="pc">45%</span></span><span class="sqr fav"><span class="lg mini"><span class="badge mini" style="--c:#E31837;--c2:#FFB612" aria-hidden="true">KC</span><img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" alt="" loading="lazy" onload="this.parentNode.classList.add('ok')" onerror="this.remove()"></span><span class="ab">KC</span><span class="nk">Chiefs</span><span class="pt">20,3</span><span class="pc">55%</span></span><span class="vbar" title="Probabilita' di vittoria"><span style="flex:0 0 45.0%;background:#FB4F14"></span><span style="background:#E31837"></span></span><span class="nota-p">KC favorita di 1,6 punti &middot; finale 10&ndash;31</span></a></div><footer>Previsioni statistiche fatte prima del kickoff, per divertimento: non sono consigli di scommessa. Dati nflverse (CC-BY 4.0), FTN Data via nflverse (CC-BY-SA 4.0), meteo Open-Meteo.</footer></div>
