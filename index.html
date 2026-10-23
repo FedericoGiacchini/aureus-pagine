@@ -72,12 +72,15 @@ nav.indice a:hover, nav.indice a:focus-visible { background: var(--carta); outli
 .prevlab { text-align: center; font-size: 12px; color: var(--ink2); text-transform: uppercase; letter-spacing: .08em; }
 .blocco { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 60px; }
 .blocco h2 { margin: 0; font: 700 26px var(--f-display); letter-spacing: .02em; text-transform: uppercase; }
-.lati { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-@media (max-width: 860px) { .lati { grid-template-columns: minmax(0, 1fr); } }
-.lato { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.lato h3 { margin: 0; font: 600 18px var(--f-display); letter-spacing: .04em; text-transform: uppercase;
+/* ospite (sx) e casa (dx) sulla stessa riga per ogni tabella: riquadri allineati; su telefono prima l'ospite */
+.lati { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; row-gap: 14px;
+  align-items: start; }
+.lati > div { min-width: 0; }
+@media (max-width: 860px) { .lati { grid-template-columns: minmax(0, 1fr); } .lati > .sx { order: 1; }
+  .lati > .dx { order: 2; } .lati > h3.dx { margin-top: 10px; } }
+.lati > h3 { margin: 0; font: 600 18px var(--f-display); letter-spacing: .04em; text-transform: uppercase;
   border-bottom: 2px solid var(--ink); padding-bottom: 4px; }
-.lati .lato:first-child h3 { border-color: var(--ospite); } .lati .lato:last-child h3 { border-color: var(--casa); }
+.lati > h3.sx { border-color: var(--ospite); } .lati > h3.dx { border-color: var(--casa); }
 .tabblock { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .tabblock h4 { margin: 0; font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase;
   letter-spacing: .08em; }
