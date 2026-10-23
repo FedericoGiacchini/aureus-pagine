@@ -126,6 +126,23 @@ footer { font-size: 12px; color: var(--ink2); border-top: 1px solid var(--riga);
 .elenco a:hover, .elenco a:focus-visible { outline: 2px solid var(--accento); }
 .elenco .riga1 { display: flex; justify-content: space-between; font: 600 18px var(--f-display); letter-spacing: .04em; }
 .elenco .riga2 { font-size: 12.5px; color: var(--ink2); }
+/* carta della partita nell'indice della week: data, due righe squadra (logo, sigla, nome, punti attesi,
+   probabilita'), barra della vittoria nei colori delle squadre, favorita */
+.elenco a.carta { gap: 8px; }
+.carta .quando-p { font-size: 12.5px; color: var(--ink2); }
+.elenco:has(.carta) { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+.carta .intest, .carta .sqr { display: grid; grid-template-columns: 26px 44px minmax(0, 1fr) 92px 64px;
+  align-items: center; column-gap: 8px; }
+.carta .intest { white-space: nowrap; font-size: 10.5px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.carta .intest span:nth-child(n+3) { text-align: right; }
+.carta .sqr { font-size: 15px; color: var(--ink2); }
+.carta .sqr .ab { font: 600 17px var(--f-display); letter-spacing: .04em; color: var(--ink); }
+.carta .sqr .nk { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.carta .sqr .pt, .carta .sqr .pc { text-align: right; font-variant-numeric: tabular-nums; }
+.carta .sqr.fav { color: var(--ink); font-weight: 600; }
+.carta .vbar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 2px; }
+.carta .vbar span { display: block; min-width: 0; } .carta .vbar span:last-child { flex: 1 1 auto; }
+.carta .nota-p { font-size: 12.5px; color: var(--ink2); }
 /* loghi, distintivi, avatar */
 .lg { position: relative; display: inline-grid; flex: none; }
 .lg > * { grid-area: 1 / 1; }
