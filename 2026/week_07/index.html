@@ -1,0 +1,164 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>AUREUS week 7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+
+<style>
+/* Pagina della partita: testata a tabellone, poi sezioni a due colonne (ospite, casa) che diventano una sola su
+   telefono. Cifre sempre in colonna. */
+:root {
+  --bg: #f3f4f1; --carta: #ffffff; --ink: #172026; --ink2: #56636b; --riga: #dde2df;
+  --accento: #b8560f; --ospite: #2f5d8a; --casa: #8a3b2f; --ok: #1d7a46; --fuori: #b3261e; --sopra: #1d6a8a; --sotto: #a8541a; --ombra: rgba(23,32,38,.06);
+  --f-display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-testo: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12171a; --carta: #1a2125; --ink: #e8ece9; --ink2: #9aa7ad; --riga: #2c363b;
+  --accento: #e8873e; --ospite: #7fb0de; --casa: #e0897a; --ok: #5cc98a; --fuori: #f07a70; --sopra: #6cc0e0; --sotto: #f0a25e; --ombra: rgba(0,0,0,.3);
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #12171a; --carta: #1a2125; --ink: #e8ece9; --ink2: #9aa7ad; --riga: #2c363b;
+  --accento: #e8873e; --ospite: #7fb0de; --casa: #e0897a; --ok: #5cc98a; --fuori: #f07a70; --sopra: #6cc0e0; --sotto: #f0a25e; --ombra: rgba(0,0,0,.3);
+  color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--f-testo);
+  font-variant-numeric: tabular-nums; }
+.pagina { max-width: 1180px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 22px; }
+a { color: var(--accento); }
+.su { font-size: 13px; color: var(--ink2); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.tabellone { background: var(--carta); border: 1px solid var(--riga); border-radius: 10px; padding: 18px 18px 16px;
+  display: flex; flex-direction: column; gap: 16px; box-shadow: 0 1px 2px var(--ombra); }
+.quando { font-size: 13px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
+.sq { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sq.casa { text-align: right; }
+.sq .sigla { font: 600 15px var(--f-display); letter-spacing: .08em; }
+.sq.ospite .sigla { color: var(--ospite); } .sq.casa .sigla { color: var(--casa); }
+.sq .nomesq { font: 600 clamp(18px, 3.2vw, 28px)/1.1 var(--f-display); text-wrap: balance; }
+.sq .ruolo-sq { font-size: 12px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.punteggio { display: flex; align-items: baseline; gap: 10px; font: 700 clamp(40px, 8vw, 68px)/1 var(--f-display); }
+.punteggio .trattino { color: var(--ink2); font-weight: 400; }
+.finale { text-align: center; font-size: 13px; color: var(--ink2); }
+.finale b { color: var(--ink); font-family: var(--f-display); font-size: 18px; letter-spacing: .02em; }
+.barra { display: flex; flex-direction: column; gap: 6px; }
+.barra .lab { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink2); }
+.barra .lab b { color: var(--ink); font-family: var(--f-display); font-size: 17px; }
+.barra .tr { height: 10px; border-radius: 5px; overflow: hidden; display: flex; background: var(--riga); }
+.barra .o { background: var(--ospite); } .barra .c { background: var(--casa); }
+.dati { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--ink2); }
+.dati b { color: var(--ink); font-weight: 600; }
+.quarti { width: 100%; border-collapse: collapse; font-size: 14px; }
+.quarti th, .quarti td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--riga); }
+.quarti th:first-child, .quarti td:first-child { text-align: left; }
+.quarti thead th { font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.quarti td.tot { font-weight: 700; }
+nav.indice { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--riga); align-items: center; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--bg); }
+nav.indice a { text-decoration: none; color: var(--ink); font: 600 14px var(--f-display); letter-spacing: .06em;
+  text-transform: uppercase; padding: 6px 10px; border-radius: 6px; }
+nav.indice a:hover, nav.indice a:focus-visible { background: var(--carta); outline: 2px solid var(--accento); }
+.interruttore { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); }
+.interruttore input { accent-color: var(--accento); width: 16px; height: 16px; }
+.legenda { font-size: 12px; color: var(--ink2); display: flex; gap: 14px; flex-wrap: wrap; }
+.leg-ok { color: var(--ok); } .leg-fuori { color: var(--fuori); }
+#squadra .scroll { max-width: 760px; }
+.prevlab { text-align: center; font-size: 12px; color: var(--ink2); text-transform: uppercase; letter-spacing: .08em; }
+.blocco { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 60px; }
+.blocco h2 { margin: 0; font: 700 26px var(--f-display); letter-spacing: .02em; text-transform: uppercase; }
+.lati { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 860px) { .lati { grid-template-columns: minmax(0, 1fr); } }
+.lato { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.lato h3 { margin: 0; font: 600 18px var(--f-display); letter-spacing: .04em; text-transform: uppercase;
+  border-bottom: 2px solid var(--ink); padding-bottom: 4px; }
+.lati .lato:first-child h3 { border-color: var(--ospite); } .lati .lato:last-child h3 { border-color: var(--casa); }
+.tabblock { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tabblock h4 { margin: 0; font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase;
+  letter-spacing: .08em; }
+.scroll { overflow-x: auto; background: var(--carta); border: 1px solid var(--riga); border-radius: 8px; }
+table.tab { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+table.tab th, table.tab td { padding: 6px 8px; border-bottom: 1px solid var(--riga); text-align: right;
+  vertical-align: top; white-space: nowrap; }
+table.tab thead th { font: 600 11.5px var(--f-testo); color: var(--ink2); text-transform: uppercase; letter-spacing: .05em;
+  background: var(--carta); }
+table.tab tbody tr:last-child th, table.tab tbody tr:last-child td { border-bottom: 0; }
+table.tab th.nome { text-align: left; font-weight: 400; position: sticky; left: 0; background: var(--carta); }
+th.nome .n { font-weight: 600; }
+th.nome .ru { color: var(--ink2); font-size: 11.5px; margin-left: 6px; }
+th.nome .prob { color: var(--accento); font-size: 11.5px; margin-left: 6px; }
+table.squadra th { text-align: left; font-weight: 400; }
+table.squadra thead th { text-align: right; font: 600 13px var(--f-display); letter-spacing: .08em; }
+table.squadra thead th:nth-child(2) { color: var(--ospite); } table.squadra thead th:nth-child(3) { color: var(--casa); }
+table.squadra tr.sub th { color: var(--ink2); }
+td.vuoto { text-align: left; color: var(--ink2); }
+.pv { display: block; font-weight: 600; }
+.iv { display: none; font-size: 11px; color: var(--ink2); }
+.mostra-int .iv { display: block; }
+.rv { display: block; font-size: 12px; color: var(--ink2); }
+.rv::before { content: "reale "; font-size: 10.5px; }
+.rv .dl { font-size: 11px; }
+.rv.sopra { color: var(--sopra); } .rv.sotto { color: var(--sotto); }
+.rv.msopra, .rv.msotto { font-weight: 700; color: var(--carta); border-radius: 4px; padding: 0 4px; margin-top: 2px;
+  display: inline-block; }
+.rv.msopra { background: var(--sopra); } .rv.msotto { background: var(--sotto); }
+.rv.ev::before { content: ""; } .rv.ev.si { color: var(--ink); font-weight: 600; }
+.leg { display: inline-block; border-radius: 4px; padding: 0 4px; font-weight: 600; }
+.leg.sopra { color: var(--sopra); } .leg.sotto { color: var(--sotto); }
+.leg.msopra { background: var(--sopra); color: var(--carta); } .leg.msotto { background: var(--sotto); color: var(--carta); }
+footer { font-size: 12px; color: var(--ink2); border-top: 1px solid var(--riga); padding-top: 12px; }
+.elenco { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.elenco a { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ink);
+  background: var(--carta); border: 1px solid var(--riga); border-radius: 10px; padding: 14px; }
+.elenco a:hover, .elenco a:focus-visible { outline: 2px solid var(--accento); }
+.elenco .riga1 { display: flex; justify-content: space-between; font: 600 18px var(--f-display); letter-spacing: .04em; }
+.elenco .riga2 { font-size: 12.5px; color: var(--ink2); }
+@media (prefers-reduced-motion: no-preference) { nav.indice a { transition: background .15s; } }
+</style><div class="pagina"><div class="su"><a href="../../index.html">&larr; Tutte le week</a></div><header class="tabellone"><div class="quando">Stagione 2026</div><div class="sq"><span class="nomesq">Week 7</span><span class="ruolo-sq">14 partite</span></div></header><div class="elenco"><a href="NE_CHI.html"><span class="riga1"><span>NE @ CHI</span>
+          <span>21&ndash;22</span></span>
+          <span class="riga2">venerdi' 23 ottobre 2026, ore 02:15</span>
+          <span class="riga2">Vittoria CHI 54%</span></a><a href="PIT_NO.html"><span class="riga1"><span>PIT @ NO</span>
+          <span>22&ndash;22</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 14:30</span>
+          <span class="riga2">Vittoria NO 51%</span></a><a href="CIN_BAL.html"><span class="riga1"><span>CIN @ BAL</span>
+          <span>22&ndash;26</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 18:00</span>
+          <span class="riga2">Vittoria BAL 65%</span></a><a href="CLE_TEN.html"><span class="riga1"><span>CLE @ TEN</span>
+          <span>19&ndash;19</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 18:00</span>
+          <span class="riga2">Vittoria TEN 50%</span></a><a href="IND_MIN.html"><span class="riga1"><span>IND @ MIN</span>
+          <span>18&ndash;25</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 18:00</span>
+          <span class="riga2">Vittoria MIN 75%</span></a><a href="MIA_NYJ.html"><span class="riga1"><span>MIA @ NYJ</span>
+          <span>19&ndash;20</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 18:00</span>
+          <span class="riga2">Vittoria NYJ 56%</span></a><a href="NYG_HOU.html"><span class="riga1"><span>NYG @ HOU</span>
+          <span>18&ndash;26</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 18:00</span>
+          <span class="riga2">Vittoria HOU 78%</span></a><a href="SF_ATL.html"><span class="riga1"><span>SF @ ATL</span>
+          <span>27&ndash;23</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 18:00</span>
+          <span class="riga2">Vittoria ATL 35%</span></a><a href="TB_CAR.html"><span class="riga1"><span>TB @ CAR</span>
+          <span>21&ndash;21</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 18:00</span>
+          <span class="riga2">Vittoria CAR 52%</span></a><a href="DEN_ARI.html"><span class="riga1"><span>DEN @ ARI</span>
+          <span>23&ndash;18</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 21:05</span>
+          <span class="riga2">Vittoria ARI 32%</span></a><a href="GB_DET.html"><span class="riga1"><span>GB @ DET</span>
+          <span>24&ndash;29</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 21:25</span>
+          <span class="riga2">Vittoria DET 70%</span></a><a href="LA_LV.html"><span class="riga1"><span>LA @ LV</span>
+          <span>27&ndash;23</span></span>
+          <span class="riga2">domenica 25 ottobre 2026, ore 21:25</span>
+          <span class="riga2">Vittoria LV 36%</span></a><a href="KC_SEA.html"><span class="riga1"><span>KC @ SEA</span>
+          <span>22&ndash;21</span></span>
+          <span class="riga2">lunedi' 26 ottobre 2026, ore 01:20</span>
+          <span class="riga2">Vittoria SEA 43%</span></a><a href="DAL_PHI.html"><span class="riga1"><span>DAL @ PHI</span>
+          <span>22&ndash;20</span></span>
+          <span class="riga2">martedi' 27 ottobre 2026, ore 01:15</span>
+          <span class="riga2">Vittoria PHI 42%</span></a></div><footer>Previsioni statistiche fatte prima del kickoff, per divertimento: non sono consigli di scommessa. Dati nflverse (CC-BY 4.0), FTN Data via nflverse (CC-BY-SA 4.0), meteo Open-Meteo.</footer></div>
