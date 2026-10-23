@@ -79,8 +79,13 @@ nav.indice a:hover, nav.indice a:focus-visible { background: var(--carta); outli
 @media (max-width: 860px) { .lati { grid-template-columns: minmax(0, 1fr); } .lati > .sx { order: 1; }
   .lati > .dx { order: 2; } .lati > h3.dx { margin-top: 10px; } }
 .lati > h3 { margin: 0; font: 600 18px var(--f-display); letter-spacing: .04em; text-transform: uppercase;
-  border-bottom: 2px solid var(--ink); padding-bottom: 4px; }
-.lati > h3.sx { border-color: var(--ospite); } .lati > h3.dx { border-color: var(--casa); }
+  border-bottom: 3px solid var(--ink); padding-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.lati > h3 .mini, .sch-sq .mini { margin-right: 0; vertical-align: 0; }
+.sch-sq { gap: 6px; }
+.lati > h3, .sch-top { border-bottom-color: var(--s1); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lati > h3,
+  :root:not([data-theme="light"]) .sch-top { border-bottom-color: var(--s2); } }
+:root[data-theme="dark"] .lati > h3, :root[data-theme="dark"] .sch-top { border-bottom-color: var(--s2); }
 .tabblock { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .tabblock h4 { margin: 0; font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase;
   letter-spacing: .08em; }
@@ -121,5 +126,54 @@ footer { font-size: 12px; color: var(--ink2); border-top: 1px solid var(--riga);
 .elenco a:hover, .elenco a:focus-visible { outline: 2px solid var(--accento); }
 .elenco .riga1 { display: flex; justify-content: space-between; font: 600 18px var(--f-display); letter-spacing: .04em; }
 .elenco .riga2 { font-size: 12.5px; color: var(--ink2); }
+/* loghi, distintivi, avatar */
+.lg { position: relative; display: inline-grid; flex: none; }
+.lg > * { grid-area: 1 / 1; }
+.lg img { width: 100%; height: 100%; object-fit: contain; }
+.lg img { opacity: 0; } .lg.ok img { opacity: 1; } .lg.ok .badge { visibility: hidden; }  /* il distintivo resta finche' il logo non arriva */
+.logo { width: 60px; height: 60px; }
+.sq.casa .logo { align-self: flex-end; }
+.mini { width: 22px; height: 22px; vertical-align: -5px; margin-right: 6px; }
+.badge { display: inline-grid; place-items: center; border-radius: 50%; background: var(--c); color: #fff;
+  border: 3px solid var(--c2); font: 700 15px var(--f-display); letter-spacing: .02em; }
+.badge.mini { border-width: 2px; font-size: 8.5px; }
+.elenco .match { display: inline-flex; align-items: center; gap: 0; }
+.elenco .match .mini:not(:first-child) { margin-left: 6px; }
+.av { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--c); color: #fff; font: 700 10.5px var(--f-testo); overflow: hidden; flex: none; }
+.av > * { grid-area: 1 / 1; }
+.av img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; }
+.av img { opacity: 0; } .av.ok img { opacity: 1; } .av.ok > span { visibility: hidden; }  /* le iniziali restano finche' la foto non arriva */
+.av.av-l { width: 92px; height: 92px; font-size: 28px; border: 3px solid var(--c); }
+button.gioc { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border-radius: 6px; }
+button.gioc:hover .n { text-decoration: underline; text-underline-offset: 3px; }
+button.gioc:focus-visible { outline: 2px solid var(--accento); outline-offset: 2px; }
+table.tab th.nome { vertical-align: middle; }
+/* scheda del giocatore: pannello a destra, a tutto schermo su telefono */
+dialog.scheda { padding: 0; border: 0; margin: 0 0 0 auto; width: min(560px, 100vw); max-width: 100vw;
+  height: 100dvh; max-height: 100dvh; background: var(--bg); color: var(--ink); box-shadow: -10px 0 40px rgba(0,0,0,.35);
+  overscroll-behavior: contain; }
+dialog.scheda::backdrop { background: rgba(10,14,16,.55); }
+.sch { display: flex; flex-direction: column; gap: 18px; padding: 0 16px 36px; }
+.sch-barra { position: sticky; top: 0; z-index: 2; background: var(--bg); display: flex; justify-content: space-between;
+  align-items: center; padding: max(10px, env(safe-area-inset-top, 0px)) 0 10px; border-bottom: 1px solid var(--riga);
+  font-size: 13px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.chiudi { all: unset; cursor: pointer; font-size: 30px; line-height: 1; width: 44px; height: 44px; display: grid;
+  place-items: center; border-radius: 50%; color: var(--ink); }
+.chiudi:hover, .chiudi:focus-visible { background: var(--carta); outline: 2px solid var(--accento); }
+.sch-top { display: flex; gap: 16px; align-items: center; padding-bottom: 14px; border-bottom: 3px solid; }
+.sch-top h3 { margin: 0 0 4px; font: 700 28px/1.05 var(--f-display); letter-spacing: .01em; }
+.sch-top > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sch-sq { font-size: 14px; color: var(--ink2); display: flex; align-items: center; }
+.pg { font-size: 13px; color: var(--ink2); } .pg b { color: var(--accento); }
+.sch-sez { display: flex; flex-direction: column; gap: 10px; }
+.sch-sez h2 { margin: 0; font: 700 20px var(--f-display); text-transform: uppercase; letter-spacing: .03em; }
+.sch .iv { display: block; }
+table.tab.vert th { text-align: left; font-weight: 600; width: 55%; }
+table.tab.vert td { text-align: right; }
+.sch table.tab tbody th { text-align: left; font-weight: 600; }
+.perche { margin: 0; border: 1px dashed var(--riga); border-radius: 8px; padding: 12px 14px; color: var(--ink2);
+  font-size: 13.5px; }
+p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
 @media (prefers-reduced-motion: no-preference) { nav.indice a { transition: background .15s; } }
 </style><div class="pagina"><header class="tabellone"><div class="quando">Previsioni NFL</div><div class="sq"><span class="nomesq">AUREUS</span><span class="ruolo-sq">Box score previsto di ogni partita, prima del kickoff</span></div></header><section class="blocco"><h2>Stagione 2026</h2><div class="elenco"><a href="2026/week_07/index.html"><span class="riga1"><span>Week 7</span></span></a><a href="2026/week_06/index.html"><span class="riga1"><span>Week 6</span></span></a><a href="2026/week_05/index.html"><span class="riga1"><span>Week 5</span></span></a></div></section><section class="blocco"><h2>Come va il modello</h2><div class="scroll" style="max-width:640px"><table class="tab"><thead><tr><th>Stagione</th><th>Partite</th><th>Vincitori giusti</th><th>Brier modello</th><th>Brier mercato</th></tr></thead><tbody><tr><th>2026</th><td>92</td><td>60,9%</td><td>0,2290</td><td>0,2334</td></tr><tr><th>2025</th><td>284</td><td>66,2%</td><td>0,2188</td><td>0,2109</td></tr><tr><th>2024</th><td>285</td><td>70,2%</td><td>0,2019</td><td>0,2010</td></tr><tr><th>2023</th><td>285</td><td>65,6%</td><td>0,2241</td><td>0,2186</td></tr><tr><th>2022</th><td>282</td><td>66,3%</td><td>0,2133</td><td>0,2093</td></tr><tr><th>2021</th><td>284</td><td>64,8%</td><td>0,2208</td><td>0,2177</td></tr><tr><th>2020</th><td>268</td><td>67,2%</td><td>0,2133</td><td>0,2019</td></tr><tr><th>2019</th><td>266</td><td>64,7%</td><td>0,2200</td><td>0,2141</td></tr></tbody></table></div><p class="legenda">Brier: errore medio delle probabilita' di vittoria, piu' basso e' meglio (0,25 = tirare a indovinare). Il mercato e' la quota di chiusura dei bookmaker. Dal 2019 il modello non ha mai visto queste stagioni mentre le prevedeva: ogni previsione usa solo le partite giocate prima.</p></section><footer>Previsioni statistiche fatte prima del kickoff, per divertimento: non sono consigli di scommessa. Dati nflverse (CC-BY 4.0), FTN Data via nflverse (CC-BY-SA 4.0), meteo Open-Meteo.</footer></div>
