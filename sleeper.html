@@ -1,0 +1,435 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>AUREUS Sleeper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+
+<style>
+/* Pagina della partita: testata a tabellone, poi sezioni a due colonne (ospite, casa) che diventano una sola su
+   telefono. Cifre sempre in colonna. */
+:root {
+  --bg: #f3f4f1; --carta: #ffffff; --ink: #172026; --ink2: #56636b; --riga: #dde2df;
+  --accento: #b8560f; --ospite: #2f5d8a; --casa: #8a3b2f; --ok: #1d7a46; --fuori: #b3261e; --sopra: #1d6a8a; --sotto: #a8541a; --ombra: rgba(23,32,38,.06);
+  --f-display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-testo: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12171a; --carta: #1a2125; --ink: #e8ece9; --ink2: #9aa7ad; --riga: #2c363b;
+  --accento: #e8873e; --ospite: #7fb0de; --casa: #e0897a; --ok: #5cc98a; --fuori: #f07a70; --sopra: #6cc0e0; --sotto: #f0a25e; --ombra: rgba(0,0,0,.3);
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #12171a; --carta: #1a2125; --ink: #e8ece9; --ink2: #9aa7ad; --riga: #2c363b;
+  --accento: #e8873e; --ospite: #7fb0de; --casa: #e0897a; --ok: #5cc98a; --fuori: #f07a70; --sopra: #6cc0e0; --sotto: #f0a25e; --ombra: rgba(0,0,0,.3);
+  color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--f-testo);
+  font-variant-numeric: tabular-nums; }
+.pagina { max-width: 1180px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 22px; }
+a { color: var(--accento); }
+.su { font-size: 13px; color: var(--ink2); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.tabellone { background: var(--carta); border: 1px solid var(--riga); border-radius: 10px; padding: 18px 18px 16px;
+  display: flex; flex-direction: column; gap: 16px; box-shadow: 0 1px 2px var(--ombra); }
+.quando { font-size: 13px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
+.sq { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sq.casa { text-align: right; }
+.sq .sigla { font: 600 15px var(--f-display); letter-spacing: .08em; }
+.sq.ospite .sigla { color: var(--ospite); } .sq.casa .sigla { color: var(--casa); }
+.sq .nomesq { font: 600 clamp(18px, 3.2vw, 28px)/1.1 var(--f-display); text-wrap: balance; }
+.sq .ruolo-sq { font-size: 12px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.punteggio { display: flex; align-items: baseline; gap: 10px; font: 700 clamp(40px, 8vw, 68px)/1 var(--f-display); }
+.punteggio .trattino { color: var(--ink2); font-weight: 400; }
+.finale { text-align: center; font-size: 13px; color: var(--ink2); }
+.finale b { color: var(--ink); font-family: var(--f-display); font-size: 18px; letter-spacing: .02em; }
+.barra { display: flex; flex-direction: column; gap: 6px; }
+.barra .lab { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink2); }
+.barra .lab b { color: var(--ink); font-family: var(--f-display); font-size: 17px; }
+.barra .tr { height: 10px; border-radius: 5px; overflow: hidden; display: flex; background: var(--riga); }
+.barra .o { background: var(--ospite); } .barra .c { background: var(--casa); }
+.dati { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--ink2); }
+.dati b { color: var(--ink); font-weight: 600; }
+.quarti { width: 100%; border-collapse: collapse; font-size: 14px; }
+.quarti th, .quarti td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--riga); }
+.quarti th:first-child, .quarti td:first-child { text-align: left; }
+.quarti thead th { font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.quarti td.tot { font-weight: 700; }
+nav.indice { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--riga); align-items: center; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--bg); }
+nav.indice a { text-decoration: none; color: var(--ink); font: 600 14px var(--f-display); letter-spacing: .06em;
+  text-transform: uppercase; padding: 6px 10px; border-radius: 6px; }
+nav.indice a:hover, nav.indice a:focus-visible { background: var(--carta); outline: 2px solid var(--accento); }
+.interruttore { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); }
+.interruttore input { accent-color: var(--accento); width: 16px; height: 16px; }
+.legenda { font-size: 12px; color: var(--ink2); display: flex; gap: 14px; flex-wrap: wrap; }
+.leg-ok { color: var(--ok); } .leg-fuori { color: var(--fuori); }
+#squadra .scroll { max-width: 760px; }
+.prevlab { text-align: center; font-size: 12px; color: var(--ink2); text-transform: uppercase; letter-spacing: .08em; }
+.blocco { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 60px; }
+.blocco h2 { margin: 0; font: 700 26px var(--f-display); letter-spacing: .02em; text-transform: uppercase; }
+/* ospite (sx) e casa (dx) sulla stessa riga per ogni tabella: riquadri allineati; su telefono prima l'ospite */
+.lati { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; row-gap: 14px;
+  align-items: start; }
+.lati > div { min-width: 0; }
+@media (max-width: 860px) { .lati { grid-template-columns: minmax(0, 1fr); } .lati > .sx { order: 1; }
+  .lati > .dx { order: 2; } .lati > h3.dx { margin-top: 10px; } }
+.lati > h3 { margin: 0; font: 600 18px var(--f-display); letter-spacing: .04em; text-transform: uppercase;
+  border-bottom: 3px solid var(--ink); padding-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.lati > h3 .mini, .sch-sq .mini { margin-right: 0; vertical-align: 0; }
+.sch-sq { gap: 6px; }
+.lati > h3, .sch-top { border-bottom-color: var(--s1); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lati > h3,
+  :root:not([data-theme="light"]) .sch-top { border-bottom-color: var(--s2); } }
+:root[data-theme="dark"] .lati > h3, :root[data-theme="dark"] .sch-top { border-bottom-color: var(--s2); }
+.tabblock { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tabblock h4 { margin: 0; font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase;
+  letter-spacing: .08em; }
+.scroll { overflow-x: auto; background: var(--carta); border: 1px solid var(--riga); border-radius: 8px; }
+table.tab { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+table.tab th, table.tab td { padding: 6px 8px; border-bottom: 1px solid var(--riga); text-align: right;
+  vertical-align: top; white-space: nowrap; }
+table.tab thead th { font: 600 11.5px var(--f-testo); color: var(--ink2); text-transform: uppercase; letter-spacing: .05em;
+  background: var(--carta); }
+table.tab tbody tr:last-child th, table.tab tbody tr:last-child td { border-bottom: 0; }
+table.tab th.nome { text-align: left; font-weight: 400; position: sticky; left: 0; background: var(--carta); }
+th.nome .n { font-weight: 600; }
+th.nome .ru { color: var(--ink2); font-size: 11.5px; margin-left: 6px; }
+th.nome .prob { color: var(--accento); font-size: 11.5px; margin-left: 6px; }
+table.squadra th { text-align: left; font-weight: 400; }
+table.squadra thead th { text-align: right; font: 600 13px var(--f-display); letter-spacing: .08em; }
+table.squadra thead th:nth-child(2) { color: var(--ospite); } table.squadra thead th:nth-child(3) { color: var(--casa); }
+table.squadra tr.sub th { color: var(--ink2); }
+td.vuoto { text-align: left; color: var(--ink2); }
+.pv { display: block; font-weight: 600; }
+.iv { display: none; font-size: 11px; color: var(--ink2); }
+.mostra-int .iv { display: block; }
+.rv { display: block; font-size: 12px; color: var(--ink2); }
+.rv::before { content: "reale "; font-size: 10.5px; }
+.rv .dl { font-size: 11px; }
+.rv.sopra { color: var(--sopra); } .rv.sotto { color: var(--sotto); }
+.rv.msopra, .rv.msotto { font-weight: 700; color: var(--carta); border-radius: 4px; padding: 0 4px; margin-top: 2px;
+  display: inline-block; }
+.rv.msopra { background: var(--sopra); } .rv.msotto { background: var(--sotto); }
+.rv.ev::before { content: ""; } .rv.ev.si { color: var(--ink); font-weight: 600; }
+.leg { display: inline-block; border-radius: 4px; padding: 0 4px; font-weight: 600; }
+.leg.sopra { color: var(--sopra); } .leg.sotto { color: var(--sotto); }
+.leg.msopra { background: var(--sopra); color: var(--carta); } .leg.msotto { background: var(--sotto); color: var(--carta); }
+footer { font-size: 12px; color: var(--ink2); border-top: 1px solid var(--riga); padding-top: 12px; }
+.elenco { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.elenco a { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ink);
+  background: var(--carta); border: 1px solid var(--riga); border-radius: 10px; padding: 14px; }
+.elenco a:hover, .elenco a:focus-visible { outline: 2px solid var(--accento); }
+.elenco .riga1 { display: flex; justify-content: space-between; font: 600 18px var(--f-display); letter-spacing: .04em; }
+.elenco .riga2 { font-size: 12.5px; color: var(--ink2); }
+/* carta della partita nell'indice della week: data, due righe squadra (logo, sigla, nome, punti attesi,
+   probabilita'), barra della vittoria nei colori delle squadre, favorita */
+.elenco a.carta { gap: 8px; }
+.carta .quando-p { font-size: 12.5px; color: var(--ink2); }
+.elenco:has(.carta) { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+.carta .intest, .carta .sqr { display: grid; grid-template-columns: 26px 44px minmax(0, 1fr) 92px 64px;
+  align-items: center; column-gap: 8px; }
+.carta .intest { white-space: nowrap; font-size: 10.5px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.carta .intest span:nth-child(n+3) { text-align: right; }
+.carta .sqr { font-size: 15px; color: var(--ink2); }
+.carta .sqr .ab { font: 600 17px var(--f-display); letter-spacing: .04em; color: var(--ink); }
+.carta .sqr .nk { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.carta .sqr .pt, .carta .sqr .pc { text-align: right; font-variant-numeric: tabular-nums; }
+.carta .sqr.fav { color: var(--ink); font-weight: 600; }
+.carta .vbar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 2px; }
+.carta .vbar span { display: block; min-width: 0; } .carta .vbar span:last-child { flex: 1 1 auto; }
+.carta .nota-p { font-size: 12.5px; color: var(--ink2); }
+/* loghi, distintivi, avatar */
+.lg { position: relative; display: inline-grid; flex: none; }
+.lg > * { grid-area: 1 / 1; }
+.lg img { width: 100%; height: 100%; object-fit: contain; }
+.lg img { opacity: 0; } .lg.ok img { opacity: 1; } .lg.ok .badge { visibility: hidden; }  /* il distintivo resta finche' il logo non arriva */
+.logo { width: 60px; height: 60px; }
+.sq.casa .logo { align-self: flex-end; }
+.mini { width: 22px; height: 22px; vertical-align: -5px; margin-right: 6px; }
+.badge { display: inline-grid; place-items: center; border-radius: 50%; background: var(--c); color: #fff;
+  border: 3px solid var(--c2); font: 700 15px var(--f-display); letter-spacing: .02em; }
+.badge.mini { border-width: 2px; font-size: 8.5px; }
+.elenco .match { display: inline-flex; align-items: center; gap: 0; }
+.elenco .match .mini:not(:first-child) { margin-left: 6px; }
+.av { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--c); color: #fff; font: 700 10.5px var(--f-testo); overflow: hidden; flex: none; }
+.av > * { grid-area: 1 / 1; }
+.av img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; }
+.av img { opacity: 0; } .av.ok img { opacity: 1; } .av.ok > span { visibility: hidden; }  /* le iniziali restano finche' la foto non arriva */
+.av.av-l { width: 92px; height: 92px; font-size: 28px; border: 3px solid var(--c); }
+button.gioc { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border-radius: 6px; }
+button.gioc:hover .n { text-decoration: underline; text-underline-offset: 3px; }
+button.gioc:focus-visible { outline: 2px solid var(--accento); outline-offset: 2px; }
+table.tab th.nome { vertical-align: middle; }
+/* scheda del giocatore: pannello a destra, a tutto schermo su telefono */
+dialog.scheda { padding: 0; border: 0; margin: 0 0 0 auto; width: min(560px, 100vw); max-width: 100vw;
+  height: 100dvh; max-height: 100dvh; background: var(--bg); color: var(--ink); box-shadow: -10px 0 40px rgba(0,0,0,.35);
+  overscroll-behavior: contain; }
+dialog.scheda::backdrop { background: rgba(10,14,16,.55); }
+.sch { display: flex; flex-direction: column; gap: 18px; padding: 0 16px 36px; }
+.sch-barra { position: sticky; top: 0; z-index: 2; background: var(--bg); display: flex; justify-content: space-between;
+  align-items: center; padding: max(10px, env(safe-area-inset-top, 0px)) 0 10px; border-bottom: 1px solid var(--riga);
+  font-size: 13px; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+.chiudi { all: unset; cursor: pointer; font-size: 30px; line-height: 1; width: 44px; height: 44px; display: grid;
+  place-items: center; border-radius: 50%; color: var(--ink); }
+.chiudi:hover, .chiudi:focus-visible { background: var(--carta); outline: 2px solid var(--accento); }
+.sch-top { display: flex; gap: 16px; align-items: center; padding-bottom: 14px; border-bottom: 3px solid; }
+.sch-top h3 { margin: 0 0 4px; font: 700 28px/1.05 var(--f-display); letter-spacing: .01em; }
+.sch-top > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sch-sq { font-size: 14px; color: var(--ink2); display: flex; align-items: center; }
+.pg { font-size: 13px; color: var(--ink2); } .pg b { color: var(--accento); }
+.sch-sez { display: flex; flex-direction: column; gap: 10px; }
+.sch-sez h2 { margin: 0; font: 700 20px var(--f-display); text-transform: uppercase; letter-spacing: .03em; }
+.sch .iv { display: block; }
+table.tab.vert th { text-align: left; font-weight: 600; width: 55%; }
+table.tab.vert td { text-align: right; }
+.sch table.tab tbody th { text-align: left; font-weight: 600; }
+.perche { margin: 0; border: 1px dashed var(--riga); border-radius: 8px; padding: 12px 14px; color: var(--ink2);
+  font-size: 13.5px; }
+p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) { nav.indice a { transition: background .15s; } }
+</style>
+<div class="pagina sl">
+<div class="su"><a href="index.html">&larr; Tutte le week</a></div>
+<header class="tabellone">
+  <div class="quando">Fantasy &middot; Sleeper</div>
+  <div class="sq"><span class="nomesq">La tua lega, prevista da AUREUS</span>
+    <span class="ruolo-sq">Punti previsti dei titolari schierati, con le regole di punteggio della lega</span></div>
+  <form id="f" class="modulo" autocomplete="off">
+    <label>Codice della lega<input id="lega" inputmode="numeric" placeholder="es. 1353579205677314048" required></label>
+    <label>Week<select id="week"></select></label>
+    <button type="submit">Calcola</button>
+  </form>
+  <div id="salvate" class="salvate"></div>
+  <div id="stato" class="stato" role="status"></div>
+</header>
+<div id="esito"></div>
+<footer>Punti previsti = valore atteso (la media, compresa la probabilita' di giocare), non il risultato esatto.
+  I dati della lega arrivano direttamente da Sleeper nel tuo browser: AUREUS non li salva. Previsioni prima del
+  kickoff, per divertimento: non sono consigli di scommessa. Dati nflverse (CC-BY 4.0), codici giocatore DynastyProcess.
+</footer>
+</div>
+<style>
+.sl .modulo { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.sl .modulo label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--ink2); }
+.sl .modulo input, .sl .modulo select { font: 16px var(--f-testo); padding: 8px 10px; border: 1px solid var(--riga);
+  border-radius: 8px; background: var(--bg); color: var(--ink); min-width: 0; }
+.sl .modulo input { width: min(260px, 70vw); }
+.sl .modulo button { font: 600 16px var(--f-testo); padding: 9px 18px; border: 0; border-radius: 8px;
+  background: var(--accento); color: #fff; cursor: pointer; }
+.sl .salvate { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; }
+.sl .salvate button { font: 13px var(--f-testo); padding: 4px 10px; border: 1px solid var(--riga); border-radius: 999px;
+  background: var(--carta); color: var(--ink); cursor: pointer; }
+.sl .stato { font-size: 14px; color: var(--ink2); min-height: 1.2em; }
+.sl .stato.err { color: var(--fuori); }
+.sl .lega-t { font: 600 22px var(--f-display); margin: 0 0 4px; }
+.sl .note { font-size: 13px; color: var(--ink2); margin: 0 0 14px; }
+.sl .sfide { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap: 14px; }
+.sl .sfida { background: var(--carta); border: 1px solid var(--riga); border-radius: 10px; padding: 14px;
+  box-shadow: 0 1px 2px var(--ombra); display: flex; flex-direction: column; gap: 10px; }
+.sl .testa-s { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
+.sl .testa-s .nome { font: 600 17px/1.15 var(--f-display); overflow-wrap: anywhere; }
+.sl .testa-s .nome.dx { text-align: right; }
+.sl .testa-s .tot { font: 700 30px/1 var(--f-display); white-space: nowrap; }
+.sl .testa-s .tot .tr { color: var(--ink2); font-weight: 400; padding: 0 6px; }
+.sl .fav { font-size: 13px; color: var(--ink2); text-align: center; }
+.sl .colonne { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 560px) { .sl .colonne { grid-template-columns: 1fr; }
+  .sl .testa-s { grid-template-columns: 1fr 1fr; grid-template-areas: "a b" "t t"; }
+  .sl .testa-s .nome { grid-area: a; } .sl .testa-s .nome.dx { grid-area: b; }
+  .sl .testa-s .tot { grid-area: t; text-align: center; } }
+.sl table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.sl th { text-align: left; font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase;
+  letter-spacing: .05em; padding: 4px 4px; border-bottom: 1px solid var(--riga); }
+.sl td { padding: 5px 4px; border-bottom: 1px solid var(--riga); vertical-align: top; }
+.sl td.pt { text-align: right; font-weight: 700; white-space: nowrap; }
+.sl td.slot { color: var(--ink2); font-size: 12px; width: 3.2em; }
+.sl .chi { display: block; font-weight: 600; }
+.sl .det { display: block; font-size: 12px; color: var(--ink2); }
+.sl .avv { color: var(--fuori); }
+.sl tr.totale td { border-bottom: 0; font-weight: 700; }
+.sl details { font-size: 13px; color: var(--ink2); }
+</style>
+<script>
+(function () {
+  var API = "https://api.sleeper.app/v1";
+  var SETTIMANE = [1, 2, 3, 4, 5, 6, 7];          // week disponibili sul sito per la stagione
+  var STAGIONE = 2026;
+  var ALIAS_SQ = { LAR: "LA", JAC: "JAX", WSH: "WAS" };  // sigle Sleeper -> sigle AUREUS
+  // voci di punteggio che sappiamo prevedere; le altre con punti diversi da zero sono elencate come non conteggiate
+  var GESTITE = ["pass_att","pass_cmp","pass_inc","pass_yd","pass_td","pass_int","rush_att","rush_yd","rush_td",
+    "rec_tgt","rec","rec_yd","rec_td","fum_lost","pass_td_40p","rush_td_40p","rec_td_40p","pass_2pt","rec_2pt",
+    "rush_2pt","bonus_rec_rb","bonus_rec_wr","bonus_rec_te","fgm","fga","fgmiss","fgm_0_19","fgm_20_29","fgm_30_39",
+    "fgm_40_49","fgm_50p","fgm_50_59","fgm_60p","xpm","xpmiss","sack","int","fum_rec","ff","def_td","safe",
+    "blk_kick","def_st_td","def_st_ff","def_st_fum_rec","pts_allow_0","pts_allow_1_6","pts_allow_7_13",
+    "pts_allow_14_20","pts_allow_21_27","pts_allow_28_34","pts_allow_35p"];
+  var $ = function (id) { return document.getElementById(id); };
+  var datiWeek = {}, giocatoriSleeper = null;
+
+  function fmt(x, d) { return (x == null || isNaN(x)) ? "–" : x.toLocaleString("it-IT",
+    { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  function stato(t, err) { var s = $("stato"); s.textContent = t; s.className = "stato" + (err ? " err" : ""); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function prendi(url) { return fetch(url).then(function (r) {
+    if (!r.ok) throw new Error(r.status === 404 ? "non trovato" : "errore " + r.status); return r.json(); }); }
+
+  // normale: probabilita' che i punti concessi cadano in ogni fascia di Sleeper (0, 1-6, ... 35+)
+  function Phi(z) { var t = 1 / (1 + 0.2316419 * Math.abs(z)), d = 0.3989423 * Math.exp(-z * z / 2);
+    var p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+    return z > 0 ? 1 - p : p; }
+  function fascePA(m, sd) {
+    var cut = [0.5, 6.5, 13.5, 20.5, 27.5, 34.5], nomi = ["pts_allow_0","pts_allow_1_6","pts_allow_7_13",
+      "pts_allow_14_20","pts_allow_21_27","pts_allow_28_34","pts_allow_35p"], out = {}, prev = 0;
+    for (var i = 0; i < cut.length; i++) { var c = Phi((cut[i] - m) / sd); out[nomi[i]] = c - prev; prev = c; }
+    out[nomi[6]] = 1 - prev; return out; }
+
+  function punti(g, sc) {
+    var e = Object.assign({}, g.e || {});
+    if (g.r === "DEF" && g.pa != null) Object.assign(e, fascePA(g.pa, Math.max(g.pa_sd, 3)));
+    // fasce dei field goal: se la lega da' punti per fascia, il conteggio per fascia; i 50+ o 50-59/60+ come la lega
+    if (g.r === "K") {
+      var usa5059 = sc.fgm_50_59 != null || sc.fgm_60p != null;
+      if (usa5059) delete e.fgm_50p; else { delete e.fgm_50_59; delete e.fgm_60p; }
+      var perFascia = ["fgm_0_19","fgm_20_29","fgm_30_39","fgm_40_49","fgm_50p","fgm_50_59","fgm_60p"]
+        .some(function (k) { return sc[k]; });
+      if (perFascia) delete e.fgm;
+    }
+    var tot = 0, parti = [];
+    Object.keys(e).forEach(function (k) { var v = sc[k]; if (v) { tot += v * e[k]; parti.push([k, v * e[k]]); } });
+    return { tot: tot, parti: parti };
+  }
+
+  function nonGestite(sc) {
+    return Object.keys(sc).filter(function (k) { return sc[k] && GESTITE.indexOf(k) < 0 && k.indexOf("idp_") !== 0; });
+  }
+
+  function trova(id, w) {
+    var d = datiWeek[w];
+    if (!d) return null;
+    if (d.dst[id] || d.dst[ALIAS_SQ[id]]) return d.dst[id] || d.dst[ALIAS_SQ[id]];
+    if (!d._per) { d._per = {}; d.giocatori.forEach(function (g) { if (g.s) d._per[g.s] = g; }); }
+    if (d._per[id]) return d._per[id];
+    if (giocatoriSleeper && giocatoriSleeper[id]) {   // riserva: nome, squadra e ruolo
+      var s = giocatoriSleeper[id], nome = (s.full_name || ((s.first_name || "") + " " + (s.last_name || ""))).toLowerCase();
+      var sqd = ALIAS_SQ[s.team] || s.team;
+      var c = d.giocatori.filter(function (g) { return g.n && g.n.toLowerCase() === nome && g.t === sqd; });
+      if (c.length === 1) return c[0];
+      return { n: s.full_name || nome, t: sqd, r: s.position, assente: true };
+    }
+    return null;
+  }
+
+  function riga(slot, g, sc) {
+    if (!g) return { html: '<tr><td class="slot">' + esc(slot) + '</td><td><span class="chi avv">giocatore non riconosciuto</span></td><td class="pt">–</td></tr>', pt: 0 };
+    if (g.assente || g.e == null) return { html: '<tr><td class="slot">' + esc(slot) + '</td><td><span class="chi">' + esc(g.n) +
+      '</span><span class="det avv">nessuna previsione questa week (bye, fuori o non nel roster)</span></td><td class="pt">0,0</td></tr>', pt: 0 };
+    var p = punti(g, sc);
+    var e = g.e, top = ({ QB: [["pass_yd", 0, " yard pass"], ["pass_td", 1, " TD pass"], ["rush_yd", 0, " yard corsa"]],
+      RB: [["rush_yd", 0, " yard corsa"], ["rec", 1, " ricezioni"], ["rec_yd", 0, " yard ric."]],
+      WR: [["rec", 1, " ricezioni"], ["rec_yd", 0, " yard"]], TE: [["rec", 1, " ricezioni"], ["rec_yd", 0, " yard"]],
+      K: [["fgm", 1, " field goal"], ["xpm", 1, " extra point"]] }[g.r] || [])
+      .filter(function (x) { return e[x[0]] >= 0.05; }).map(function (x) { return fmt(e[x[0]], x[1]) + x[2]; }).join(", ");
+    if (g.r === "DEF" && g.pa != null) top = fmt(g.pa, 1) + " punti concessi, " + fmt(e.sack || 0, 1) + " sack";
+    var det = esc(g.t) + (g.opp ? (g.casa ? " vs " : " @ ") + esc(g.opp) : "") +
+      (g.p < 0.95 ? ' · <span class="avv">gioca al ' + fmt(g.p * 100, 0) + "%</span>" : "") +
+      (g.giocata ? " · partita già giocata" : "") + (top ? " · " + top : "");
+    return { html: '<tr><td class="slot">' + esc(slot) + '</td><td><span class="chi">' + esc(g.n) + '</span><span class="det">' + det +
+      '</span></td><td class="pt">' + fmt(p.tot, 1) + "</td></tr>", pt: p.tot };
+  }
+
+  function squadra(r, utenti, posti, w, sc) {
+    var u = utenti[r.owner_id] || {}, nome = (u.metadata && u.metadata.team_name) || u.display_name || ("Squadra " + r.roster_id);
+    var righe = [], tot = 0, slots = posti.filter(function (p) { return p !== "BN" && p !== "IR" && p !== "TAXI"; });
+    (r._titolari || []).forEach(function (id, i) {
+      var slot = slots[i] || "";
+      if (!id || id === "0") { righe.push('<tr><td class="slot">' + esc(slot) + '</td><td><span class="chi avv">posto vuoto</span></td><td class="pt">0,0</td></tr>'); return; }
+      var x = riga(slot, trova(id, w), sc); righe.push(x.html); tot += x.pt;
+    });
+    return { nome: nome, tot: tot, html: '<table><thead><tr><th></th><th>' + esc(nome) + '</th><th style="text-align:right">punti</th></tr></thead><tbody>' +
+      righe.join("") + '<tr class="totale"><td></td><td>Totale previsto</td><td class="pt">' + fmt(tot, 1) + "</td></tr></tbody></table>" };
+  }
+
+  function carica(w) {
+    if (datiWeek[w]) return Promise.resolve(datiWeek[w]);
+    return prendi(STAGIONE + "/week_" + String(w).padStart(2, "0") + "/sleeper.json").then(function (d) { datiWeek[w] = d; return d; });
+  }
+
+  function calcola(lega, w) {
+    stato("Leggo la lega da Sleeper…");
+    var base = API + "/league/" + encodeURIComponent(lega);
+    Promise.all([prendi(base), prendi(base + "/users"), prendi(base + "/rosters"), prendi(base + "/matchups/" + w), carica(w)])
+      .then(function (x) {
+        var L = x[0], U = x[1], R = x[2], M = x[3];
+        if (!L || !L.league_id) throw new Error("lega non trovata: controlla il codice");
+        if (String(L.season) !== String(STAGIONE)) stato("Attenzione: la lega e' della stagione " + L.season + ", le previsioni del " + STAGIONE);
+        var mancanti = [];
+        M.forEach(function (m) { (m.starters || []).forEach(function (id) { if (id && id !== "0" && !trova(id, w)) mancanti.push(id); }); });
+        var serve = mancanti.length && !giocatoriSleeper
+          ? prendi(API + "/players/nfl").then(function (p) { giocatoriSleeper = p; }).catch(function () {})
+          : Promise.resolve();
+        return serve.then(function () { mostra(L, U, R, M, w); });
+      })
+      .catch(function (e) { stato("Non riesco a calcolare: " + e.message + ". Se il codice e' giusto, la week " + w +
+        " potrebbe non avere ancora le previsioni.", true); });
+  }
+
+  function mostra(L, U, R, M, w) {
+    var sc = L.scoring_settings || {}, posti = L.roster_positions || [], utenti = {};
+    U.forEach(function (u) { utenti[u.user_id] = u; });
+    var perRoster = {}; R.forEach(function (r) { perRoster[r.roster_id] = r; });
+    var gruppi = {};
+    M.forEach(function (m) { var r = perRoster[m.roster_id] || { roster_id: m.roster_id }; r._titolari = m.starters || [];
+      var k = m.matchup_id == null ? "x" + m.roster_id : m.matchup_id; (gruppi[k] = gruppi[k] || []).push(r); });
+    var carte = Object.keys(gruppi).map(function (k) {
+      var s = gruppi[k].map(function (r) { return squadra(r, utenti, posti, w, sc); });
+      var a = s[0], b = s[1];
+      if (!b) return '<section class="sfida"><div class="testa-s"><span class="nome">' + esc(a.nome) + '</span><span class="tot">' + fmt(a.tot, 1) +
+        '</span><span></span></div><div class="colonne"><div>' + a.html + "</div></div></section>";
+      var dif = a.tot - b.tot, fav = Math.abs(dif) < 0.5 ? "sfida in equilibrio" : esc(dif > 0 ? a.nome : b.nome) + " favorita di " + fmt(Math.abs(dif), 1) + " punti";
+      return '<section class="sfida"><div class="testa-s"><span class="nome">' + esc(a.nome) + '</span><span class="tot">' + fmt(a.tot, 1) +
+        '<span class="tr">–</span>' + fmt(b.tot, 1) + '</span><span class="nome dx">' + esc(b.nome) + '</span></div><div class="fav">' + fav +
+        '</div><div class="colonne"><div>' + a.html + "</div><div>" + b.html + "</div></div></section>";
+    });
+    var ng = nonGestite(sc);
+    var nota = ng.length ? '<details><summary>Voci di punteggio della lega non conteggiate (' + ng.length + ")</summary><p>" +
+      ng.map(function (k) { return esc(k) + " (" + fmt(sc[k], 2) + ")"; }).join(", ") +
+      "</p><p>AUREUS non le prevede ancora: i punti previsti non le includono.</p></details>" : "";
+    $("esito").innerHTML = '<h2 class="lega-t">' + esc(L.name) + " &middot; week " + w + '</h2><p class="note">' +
+      (sc.rec ? fmt(sc.rec, 1) + " punti a ricezione" : "senza punti a ricezione") +
+      (sc.rec_td_40p || sc.rush_td_40p || sc.pass_td_40p ? ", bonus TD da 40+ yard" : "") + ". Punti attesi dei titolari schierati ora su Sleeper.</p>" +
+      nota + '<div class="sfide">' + carte.join("") + "</div>";
+    stato("Fatto: " + M.length + " squadre.");
+    ricorda(L);
+  }
+
+  function lette() { try { return JSON.parse(localStorage.getItem("aureus_leghe") || "[]"); } catch (e) { return []; } }
+  function ricorda(L) { try { var v = lette().filter(function (x) { return x.id !== L.league_id; });
+    v.unshift({ id: L.league_id, nome: L.name }); localStorage.setItem("aureus_leghe", JSON.stringify(v.slice(0, 6))); disegnaSalvate(); } catch (e) {} }
+  function disegnaSalvate() { var v = lette(); $("salvate").innerHTML = v.map(function (x, i) {
+      return '<button type="button" data-i="' + i + '">' + esc(x.nome) + "</button>"; }).join("");
+    Array.prototype.forEach.call($("salvate").querySelectorAll("button"), function (b) {
+      b.addEventListener("click", function () { $("lega").value = v[+b.dataset.i].id; avvia(); }); }); }
+
+  function avvia() { var l = $("lega").value.trim(); if (!/^\d{6,}$/.test(l)) { stato("Il codice della lega e' un numero lungo (lo trovi nelle impostazioni della lega su Sleeper).", true); return; }
+    var w = +$("week").value; history.replaceState(null, "", "?lega=" + l + "&week=" + w); calcola(l, w); }
+
+  SETTIMANE.forEach(function (w) { var o = document.createElement("option"); o.value = w; o.textContent = "Week " + w; $("week").appendChild(o); });
+  var qs = new URLSearchParams(location.search);
+  prendi(API + "/state/nfl").then(function (s) {
+    var w = +(s.display_week || s.week); if (SETTIMANE.indexOf(w) >= 0 && !qs.get("week")) $("week").value = w;
+  }).catch(function () {}).then(function () {
+    if (qs.get("week")) $("week").value = qs.get("week");
+    if (!qs.get("week") && !$("week").value) $("week").value = SETTIMANE[SETTIMANE.length - 1];
+    if (qs.get("lega")) { $("lega").value = qs.get("lega"); avvia(); }
+  });
+  if (!qs.get("week")) $("week").value = SETTIMANE[SETTIMANE.length - 1];
+  disegnaSalvate();
+  $("f").addEventListener("submit", function (ev) { ev.preventDefault(); avvia(); });
+})();
+</script>
