@@ -201,6 +201,10 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
 .sch ul.chicche li.ch-pos { border-left-color: var(--ok); }
 .sch ul.chicche li.ch-neg { border-left-color: var(--fuori); }
 .sch ul.chicche li.ch-info { color: var(--ink2); font-size: 12.5px; background: transparent; }
+.sch p.racconto { margin: 0; font-size: 14.5px; line-height: 1.6; }
+.sch p.unariga { margin: 14px 0 0; padding: 9px 13px; border-left: 3px solid var(--accento); background: var(--bg);
+  font-size: 14.5px; line-height: 1.5; border-radius: 0 6px 6px 0; }
+.sch p.nota-p { margin: 8px 0 0; font-size: 12px; color: var(--ink2); }
 @media (prefers-reduced-motion: no-preference) { nav.indice a { transition: background .15s; } }
 </style>
 <div class="pagina sl">
@@ -328,6 +332,10 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
 .scheda-sl ul.chicche li.ch-pos { border-left-color: var(--ok); }
 .scheda-sl ul.chicche li.ch-neg { border-left-color: var(--fuori); }
 .scheda-sl ul.chicche li.ch-info { border-left-color: var(--riga); color: var(--ink2); font-size: 12.5px; background: transparent; }
+.scheda-sl p.racconto { margin: 0; font-size: 14px; line-height: 1.55; }
+.scheda-sl p.unariga { margin: 12px 0 0; padding: 8px 12px; border-left: 3px solid var(--accento); background: var(--bg);
+  font-size: 14px; line-height: 1.45; border-radius: 0 6px 6px 0; }
+.scheda-sl p.nota-p { margin: 8px 0 0; font-size: 12px; color: var(--ink2); }
 
 </style>
 <script>
@@ -411,6 +419,15 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     var m = g.m;
     if (!m) return '<section><h4>Perché</h4><p class="perche">' + (/^(QB|RB|WR|TE)$/.test(g.r) || !g.e ? "Nessuna spiegazione per questa week." :
       "La spiegazione per questo ruolo è in preparazione: per ora ci sono QB, RB, WR e TE.") + "</p></section>";
+    if (m.sez) {
+      var c2 = (m.c || []).map(function (x) {
+        return '<li class="ch ch-' + (x.s === "+" ? "pos" : x.s === "-" ? "neg" : "info") + '">' + esc(x.t) + "</li>"; }).join("");
+      return '<section><h4>Perché</h4><p class="giudizio">' + esc(m.g) + "</p>" +
+        m.sez.map(function (x) { return '<h4 class="sotto">' + esc(x.t) + '</h4><p class="racconto">' + esc(x.p) + "</p>"; }).join("") +
+        (c2 ? '<h4 class="sotto">Il confronto con la difesa</h4><ul class="chicche">' + c2 + "</ul>" : "") +
+        (m.r1 ? '<p class="unariga"><b>In una riga.</b> ' + esc(m.r1) + "</p>" : "") +
+        (m.n ? '<p class="nota-p">' + esc(m.n) + "</p>" : "") + "</section>";
+    }
     var r = (m.r || []).map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("");
     var c = (m.c || []).map(function (x) {
       return '<li class="ch ch-' + (x.s === "+" ? "pos" : x.s === "-" ? "neg" : "info") + '">' + esc(x.t) + "</li>"; }).join("");
