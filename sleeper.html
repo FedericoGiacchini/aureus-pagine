@@ -328,6 +328,7 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
 .scheda-sl ul.chicche li.ch-pos { border-left-color: var(--ok); }
 .scheda-sl ul.chicche li.ch-neg { border-left-color: var(--fuori); }
 .scheda-sl ul.chicche li.ch-info { border-left-color: var(--riga); color: var(--ink2); font-size: 12.5px; background: transparent; }
+
 </style>
 <script>
 (function () {
@@ -342,8 +343,9 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     "fgm_40_49","fgm_50p","fgm_50_59","fgm_60p","xpm","xpmiss","sack","int","fum_rec","ff","def_td","safe",
     "blk_kick","def_st_td","def_st_ff","def_st_fum_rec","pts_allow_0","pts_allow_1_6","pts_allow_7_13",
     "pts_allow_14_20","pts_allow_21_27","pts_allow_28_34","pts_allow_35p"];
+  // ---- comune alla pagina Sleeper e alla pagina dei giocatori (pagina_sleeper.JS_COMUNE)
   var $ = function (id) { return document.getElementById(id); };
-  var datiWeek = {}, giocatoriSleeper = null, registro = [], scoringOra = {}, storiaCol = {};
+  var scoringOra = {}, storiaCol = {}, ETICHETTA_PUNTI = "Punti con le regole della tua lega";
   var ETI = { pass_att: "Passaggi tentati", pass_cmp: "Passaggi completi", pass_inc: "Passaggi incompleti",
     pass_yd: "Yard su passaggio", pass_td: "TD su passaggio", pass_int: "Intercetti", rush_att: "Corse",
     rush_yd: "Yard di corsa", rush_td: "TD su corsa", rec_tgt: "Target", rec: "Ricezioni", rec_yd: "Yard di ricezione",
@@ -363,8 +365,6 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     RB: ["rush_att", "rush_yd", "rush_td", "rec_tgt", "rec", "rec_yd", "rec_td", "fum_lost"],
     WR: ["rec_tgt", "rec", "rec_yd", "rec_td", "rush_att", "rush_yd"], TE: ["rec_tgt", "rec", "rec_yd", "rec_td"],
     K: ["fga", "fgm", "fgm_40_49", "fgm_50p", "xpm"], DEF: ["sack", "int", "fum_rec", "def_td", "safe"] };
-  var ELIG = { QB: ["QB"], RB: ["RB"], WR: ["WR"], TE: ["TE"], K: ["K"], DEF: ["DEF"], FLEX: ["RB", "WR", "TE"],
-    WRRB_FLEX: ["WR", "RB"], REC_FLEX: ["WR", "TE"], SUPER_FLEX: ["QB", "RB", "WR", "TE"] };
   function iniziali(n) { return String(n || "").split(/\s+/).filter(Boolean).slice(0, 2).map(function (x) { return x[0]; }).join("").toUpperCase(); }
   function avatar(g) {
     var ini = esc(iniziali(g && g.n));
@@ -376,7 +376,6 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
 
   function fmt(x, d) { return (x == null || isNaN(x)) ? "–" : x.toLocaleString("it-IT",
     { minimumFractionDigits: d, maximumFractionDigits: d }); }
-  function stato(t, err) { var s = $("stato"); s.textContent = t; s.className = "stato" + (err ? " err" : ""); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function prendi(url) { return fetch(url).then(function (r) {
@@ -408,6 +407,52 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     return { tot: tot, parti: parti };
   }
 
+  function perche(g) {
+    var m = g.m;
+    if (!m) return '<section><h4>Perché</h4><p class="perche">' + (/^(RB|WR|TE)$/.test(g.r) || !g.e ? "Nessuna spiegazione per questa week." :
+      "La spiegazione per questo ruolo è in preparazione: per ora ci sono RB, WR e TE.") + "</p></section>";
+    var r = (m.r || []).map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("");
+    var c = (m.c || []).map(function (x) {
+      return '<li class="ch ch-' + (x.s === "+" ? "pos" : x.s === "-" ? "neg" : "info") + '">' + esc(x.t) + "</li>"; }).join("");
+    return '<section><h4>Perché</h4><p class="giudizio">' + esc(m.g) + "</p>" + (r ? '<ul class="perche-l">' + r + "</ul>" : "") +
+      (c ? '<h4 class="sotto">Il confronto con la difesa</h4><ul class="chicche">' + c + "</ul>" : "") + "</section>";
+  }
+
+  function scheda(g) {
+    var sc = scoringOra, e = g.e || {}, p = g.e ? punti(g, sc) : { tot: 0, parti: [] };
+    var stat = (STAT[g.r] || []).filter(function (k) { return e[k] != null; }).map(function (k) {
+      return "<tr><td>" + esc(ETI[k] || k) + "</td><td>" + fmt(e[k], /yd/.test(k) ? 0 : 1) + "</td></tr>"; }).join("");
+    if (g.r === "DEF" && g.pa != null) stat = "<tr><td>Punti concessi</td><td>" + fmt(g.pa, 1) + "</td></tr>" + stat;
+    var parti = p.parti.filter(function (x) { return Math.abs(x[1]) >= 0.05; }).sort(function (a, b) { return Math.abs(b[1]) - Math.abs(a[1]); })
+      .map(function (x) { return "<tr><td>" + esc(ETI[x[0]] || x[0]) + "</td><td>" + (x[1] > 0 ? "+" : "") + fmt(x[1], 1) + "</td></tr>"; }).join("");
+    var col = storiaCol[g.r] || storiaCol.ATT || [];
+    var storia = (g.h || []).map(function (h) { return "<tr><td>" + esc(h.d) + " " + (h.c ? "vs " : "@ ") + esc(h.o) + "</td>" +
+      h.v.map(function (x, i) { return "<td>" + (x == null ? "–" : fmt(x, col[i] === "PPR" ? 1 : 0)) + "</td>"; }).join("") + "</tr>"; }).join("");
+    var testa = g.opp ? (esc(g.t) + (g.casa ? " vs " : " @ ") + esc(g.opp) + (g.ko ? " · " + new Date(g.ko).toLocaleString("it-IT",
+      { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "")) : esc(g.t || "");
+    $("scheda-corpo").innerHTML = '<div class="testa">' + avatar(g) + "<div><h3>" + esc(g.n) + '</h3><div class="sub">' + testa +
+      (g.p != null && g.p < 0.95 ? " · gioca al " + fmt(g.p * 100, 0) + "%" : "") + "</div></div></div>" +
+      (g.e ? "<section><h4>Previsione AUREUS</h4><table><tbody>" + stat + "</tbody></table></section>" +
+        "<section><h4>" + ETICHETTA_PUNTI + ": " + fmt(p.tot, 1) + "</h4><table><tbody>" + parti + "</tbody></table></section>"
+        : '<p class="perche">Nessuna previsione per questa week (bye, fuori o non nel roster).</p>') +
+      (storia ? '<section><h4>Ultime partite</h4><div class="scroll"><table><thead><tr><th>Partita</th>' +
+        col.map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "</tr></thead><tbody>" + storia + "</tbody></table></div></section>" : "") +
+      perche(g) +
+      '<button type="button" class="chiudi" id="chiudi">Chiudi</button>';
+    $("chiudi").addEventListener("click", function () { $("scheda").close(); });
+    $("scheda").showModal();
+  }
+
+  $("scheda").addEventListener("click", function (ev) { if (ev.target === $("scheda")) $("scheda").close(); });
+
+  var datiWeek = {}, giocatoriSleeper = null, registro = [];
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest && ev.target.closest("button.nomeb");
+    if (b) scheda(registro[+b.dataset.g]);
+  });
+  var ELIG = { QB: ["QB"], RB: ["RB"], WR: ["WR"], TE: ["TE"], K: ["K"], DEF: ["DEF"], FLEX: ["RB", "WR", "TE"],
+    WRRB_FLEX: ["WR", "RB"], REC_FLEX: ["WR", "TE"], SUPER_FLEX: ["QB", "RB", "WR", "TE"] };
+  function stato(t, err) { var s = $("stato"); s.textContent = t; s.className = "stato" + (err ? " err" : ""); }
   function nonGestite(sc) {
     return Object.keys(sc).filter(function (k) { return sc[k] && GESTITE.indexOf(k) < 0 && k.indexOf("idp_") !== 0; });
   }
@@ -551,47 +596,6 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     fila(lati.map(function (x) { return x.box; }));
     return '<div class="coppia' + (b ? "" : " sola") + '">' + celle.join("") + "</div>";
   }
-
-  function perche(g) {
-    var m = g.m;
-    if (!m) return '<section><h4>Perché</h4><p class="perche">' + (/^(RB|WR|TE)$/.test(g.r) || !g.e ? "Nessuna spiegazione per questa week." :
-      "La spiegazione per questo ruolo è in preparazione: per ora ci sono RB, WR e TE.") + "</p></section>";
-    var r = (m.r || []).map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("");
-    var c = (m.c || []).map(function (x) {
-      return '<li class="ch ch-' + (x.s === "+" ? "pos" : x.s === "-" ? "neg" : "info") + '">' + esc(x.t) + "</li>"; }).join("");
-    return '<section><h4>Perché</h4><p class="giudizio">' + esc(m.g) + "</p>" + (r ? '<ul class="perche-l">' + r + "</ul>" : "") +
-      (c ? '<h4 class="sotto">Il confronto con la difesa</h4><ul class="chicche">' + c + "</ul>" : "") + "</section>";
-  }
-
-  function scheda(g) {
-    var sc = scoringOra, e = g.e || {}, p = g.e ? punti(g, sc) : { tot: 0, parti: [] };
-    var stat = (STAT[g.r] || []).filter(function (k) { return e[k] != null; }).map(function (k) {
-      return "<tr><td>" + esc(ETI[k] || k) + "</td><td>" + fmt(e[k], /yd/.test(k) ? 0 : 1) + "</td></tr>"; }).join("");
-    if (g.r === "DEF" && g.pa != null) stat = "<tr><td>Punti concessi</td><td>" + fmt(g.pa, 1) + "</td></tr>" + stat;
-    var parti = p.parti.filter(function (x) { return Math.abs(x[1]) >= 0.05; }).sort(function (a, b) { return Math.abs(b[1]) - Math.abs(a[1]); })
-      .map(function (x) { return "<tr><td>" + esc(ETI[x[0]] || x[0]) + "</td><td>" + (x[1] > 0 ? "+" : "") + fmt(x[1], 1) + "</td></tr>"; }).join("");
-    var col = storiaCol[g.r] || storiaCol.ATT || [];
-    var storia = (g.h || []).map(function (h) { return "<tr><td>" + esc(h.d) + " " + (h.c ? "vs " : "@ ") + esc(h.o) + "</td>" +
-      h.v.map(function (x, i) { return "<td>" + (x == null ? "–" : fmt(x, col[i] === "PPR" ? 1 : 0)) + "</td>"; }).join("") + "</tr>"; }).join("");
-    var testa = g.opp ? (esc(g.t) + (g.casa ? " vs " : " @ ") + esc(g.opp) + (g.ko ? " · " + new Date(g.ko).toLocaleString("it-IT",
-      { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "")) : esc(g.t || "");
-    $("scheda-corpo").innerHTML = '<div class="testa">' + avatar(g) + "<div><h3>" + esc(g.n) + '</h3><div class="sub">' + testa +
-      (g.p != null && g.p < 0.95 ? " · gioca al " + fmt(g.p * 100, 0) + "%" : "") + "</div></div></div>" +
-      (g.e ? "<section><h4>Previsione AUREUS</h4><table><tbody>" + stat + "</tbody></table></section>" +
-        "<section><h4>Punti con le regole della tua lega: " + fmt(p.tot, 1) + "</h4><table><tbody>" + parti + "</tbody></table></section>"
-        : '<p class="perche">Nessuna previsione per questa week (bye, fuori o non nel roster).</p>') +
-      (storia ? '<section><h4>Ultime partite</h4><div class="scroll"><table><thead><tr><th>Partita</th>' +
-        col.map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "</tr></thead><tbody>" + storia + "</tbody></table></div></section>" : "") +
-      perche(g) +
-      '<button type="button" class="chiudi" id="chiudi">Chiudi</button>';
-    $("chiudi").addEventListener("click", function () { $("scheda").close(); });
-    $("scheda").showModal();
-  }
-  document.addEventListener("click", function (ev) {
-    var b = ev.target.closest && ev.target.closest("button.nomeb");
-    if (b) scheda(registro[+b.dataset.g]);
-  });
-  $("scheda").addEventListener("click", function (ev) { if (ev.target === $("scheda")) $("scheda").close(); });
 
   function carica(w) {
     if (datiWeek[w]) return Promise.resolve(datiWeek[w]);
