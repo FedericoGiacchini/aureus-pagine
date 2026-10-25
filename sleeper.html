@@ -209,6 +209,7 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
   <div id="stato" class="stato" role="status"></div>
 </header>
 <div id="esito"></div>
+<dialog class="scheda-sl" id="scheda"><div class="corpo" id="scheda-corpo"></div></dialog>
 <footer>Punti previsti = valore atteso (la media, compresa la probabilita' di giocare), non il risultato esatto.
   I dati della lega arrivano direttamente da Sleeper nel tuo browser: AUREUS non li salva. Previsioni prima del
   kickoff, per divertimento: non sono consigli di scommessa. Dati nflverse (CC-BY 4.0), codici giocatore DynastyProcess.
@@ -254,6 +255,37 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
 .sl .avv { color: var(--fuori); }
 .sl tr.totale td { border-bottom: 0; font-weight: 700; }
 .sl details { font-size: 13px; color: var(--ink2); }
+.sl .gioc { display: flex; gap: 8px; align-items: flex-start; }
+.sl .av { width: 34px; height: 34px; border-radius: 50%; flex: 0 0 34px; background: var(--riga); object-fit: cover;
+  overflow: hidden; display: inline-flex; align-items: center; justify-content: center; font: 600 12px var(--f-testo);
+  color: var(--ink2); }
+.sl .av img { width: 100%; height: 100%; object-fit: cover; }
+.sl button.nomeb { all: unset; cursor: pointer; font-weight: 600; display: block; color: var(--ink); }
+.sl button.nomeb:hover, .sl button.nomeb:focus-visible { text-decoration: underline; color: var(--accento); }
+.sl tr.panca td { color: var(--ink2); background: color-mix(in srgb, var(--bg) 60%, transparent); }
+.sl tr.panca .nomeb { color: var(--ink2); }
+.sl tr.sep td { font: 600 11px var(--f-testo); text-transform: uppercase; letter-spacing: .06em; color: var(--ink2);
+  padding-top: 10px; }
+.sl .ideale { font-size: 13px; border: 1px solid var(--riga); border-radius: 8px; padding: 8px 10px; background: var(--bg); }
+.sl .ideale b { color: var(--accento); }
+.sl .ideale ul { margin: 6px 0 0; padding-left: 18px; }
+dialog.scheda-sl { border: 1px solid var(--riga); border-radius: 12px; padding: 0; width: min(560px, calc(100vw - 24px));
+  max-height: calc(100vh - 40px); background: var(--carta); color: var(--ink); }
+dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
+.scheda-sl .corpo { padding: 16px; display: flex; flex-direction: column; gap: 14px; font: 14px var(--f-testo); }
+.scheda-sl .testa { display: flex; gap: 12px; align-items: center; }
+.scheda-sl .testa .av { width: 64px; height: 64px; flex-basis: 64px; font-size: 18px; }
+.scheda-sl h3 { margin: 0; font: 600 22px/1.1 var(--f-display); }
+.scheda-sl .sub { font-size: 13px; color: var(--ink2); }
+.scheda-sl h4 { margin: 0 0 6px; font: 600 13px var(--f-testo); text-transform: uppercase; letter-spacing: .06em;
+  color: var(--ink2); }
+.scheda-sl table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.scheda-sl td, .scheda-sl th { padding: 4px 6px; border-bottom: 1px solid var(--riga); text-align: right; }
+.scheda-sl td:first-child, .scheda-sl th:first-child { text-align: left; }
+.scheda-sl .scroll { overflow-x: auto; }
+.scheda-sl .chiudi { align-self: flex-end; font: 600 14px var(--f-testo); padding: 6px 14px; border-radius: 8px;
+  border: 1px solid var(--riga); background: var(--bg); color: var(--ink); cursor: pointer; }
+.scheda-sl .perche { font-size: 13px; color: var(--ink2); }
 </style>
 <script>
 (function () {
@@ -269,7 +301,35 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
     "blk_kick","def_st_td","def_st_ff","def_st_fum_rec","pts_allow_0","pts_allow_1_6","pts_allow_7_13",
     "pts_allow_14_20","pts_allow_21_27","pts_allow_28_34","pts_allow_35p"];
   var $ = function (id) { return document.getElementById(id); };
-  var datiWeek = {}, giocatoriSleeper = null;
+  var datiWeek = {}, giocatoriSleeper = null, registro = [], scoringOra = {}, storiaCol = {};
+  var ETI = { pass_att: "Passaggi tentati", pass_cmp: "Passaggi completi", pass_inc: "Passaggi incompleti",
+    pass_yd: "Yard su passaggio", pass_td: "TD su passaggio", pass_int: "Intercetti", rush_att: "Corse",
+    rush_yd: "Yard di corsa", rush_td: "TD su corsa", rec_tgt: "Target", rec: "Ricezioni", rec_yd: "Yard di ricezione",
+    rec_td: "TD su ricezione", fum_lost: "Fumble perse", pass_td_40p: "Bonus TD su passaggio 40+",
+    rush_td_40p: "Bonus TD su corsa 40+", rec_td_40p: "Bonus TD su ricezione 40+", pass_2pt: "Conversioni da 2 (passaggio)",
+    rush_2pt: "Conversioni da 2 (corsa)", rec_2pt: "Conversioni da 2 (ricezione)", bonus_rec_rb: "Bonus ricezione RB",
+    bonus_rec_wr: "Bonus ricezione WR", bonus_rec_te: "Bonus ricezione TE", fgm: "Field goal segnati",
+    fga: "Field goal tentati", fgmiss: "Field goal sbagliati", fgm_0_19: "FG 0-19", fgm_20_29: "FG 20-29",
+    fgm_30_39: "FG 30-39", fgm_40_49: "FG 40-49", fgm_50p: "FG 50+", fgm_50_59: "FG 50-59", fgm_60p: "FG 60+",
+    xpm: "Extra point segnati", xpmiss: "Extra point sbagliati", sack: "Sack", int: "Intercetti", fum_rec: "Fumble recuperati",
+    ff: "Fumble forzati", def_td: "TD della difesa", safe: "Safety", blk_kick: "Calci bloccati",
+    def_st_td: "TD su ritorno", def_st_ff: "Fumble forzati (special team)", def_st_fum_rec: "Fumble recuperati (special team)",
+    pts_allow_0: "Punti concessi 0", pts_allow_1_6: "Punti concessi 1-6", pts_allow_7_13: "Punti concessi 7-13",
+    pts_allow_14_20: "Punti concessi 14-20", pts_allow_21_27: "Punti concessi 21-27", pts_allow_28_34: "Punti concessi 28-34",
+    pts_allow_35p: "Punti concessi 35+" };
+  var STAT = { QB: ["pass_cmp", "pass_att", "pass_yd", "pass_td", "pass_int", "rush_att", "rush_yd", "rush_td", "fum_lost"],
+    RB: ["rush_att", "rush_yd", "rush_td", "rec_tgt", "rec", "rec_yd", "rec_td", "fum_lost"],
+    WR: ["rec_tgt", "rec", "rec_yd", "rec_td", "rush_att", "rush_yd"], TE: ["rec_tgt", "rec", "rec_yd", "rec_td"],
+    K: ["fga", "fgm", "fgm_40_49", "fgm_50p", "xpm"], DEF: ["sack", "int", "fum_rec", "def_td", "safe"] };
+  var ELIG = { QB: ["QB"], RB: ["RB"], WR: ["WR"], TE: ["TE"], K: ["K"], DEF: ["DEF"], FLEX: ["RB", "WR", "TE"],
+    WRRB_FLEX: ["WR", "RB"], REC_FLEX: ["WR", "TE"], SUPER_FLEX: ["QB", "RB", "WR", "TE"] };
+  function iniziali(n) { return String(n || "").split(/\s+/).filter(Boolean).slice(0, 2).map(function (x) { return x[0]; }).join("").toUpperCase(); }
+  function avatar(g) {
+    var ini = esc(iniziali(g && g.n));
+    if (!g || !g.f) return '<span class="av">' + ini + "</span>";
+    return '<span class="av"><img src="' + esc(g.f) + '" alt="" loading="lazy" onerror="this.parentNode.textContent=\'' + ini + '\'"></span>';
+  }
+  function bloccato(g) { return !!g && (g.giocata || (g.ko && new Date(g.ko) <= new Date())); }
 
   function fmt(x, d) { return (x == null || isNaN(x)) ? "–" : x.toLocaleString("it-IT",
     { minimumFractionDigits: d, maximumFractionDigits: d }); }
@@ -325,10 +385,13 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
     return null;
   }
 
-  function riga(slot, g, sc) {
-    if (!g) return { html: '<tr><td class="slot">' + esc(slot) + '</td><td><span class="chi avv">giocatore non riconosciuto</span></td><td class="pt">–</td></tr>', pt: 0 };
-    if (g.assente || g.e == null) return { html: '<tr><td class="slot">' + esc(slot) + '</td><td><span class="chi">' + esc(g.n) +
-      '</span><span class="det avv">nessuna previsione questa week (bye, fuori o non nel roster)</span></td><td class="pt">0,0</td></tr>', pt: 0 };
+  function riga(slot, g, sc, panca) {
+    var cls = panca ? ' class="panca"' : "";
+    if (!g) return { html: "<tr" + cls + '><td class="slot">' + esc(slot) + '</td><td><span class="chi avv">giocatore non riconosciuto</span></td><td class="pt">–</td></tr>', pt: 0 };
+    var idx = registro.push(g) - 1;
+    var nome = '<button type="button" class="nomeb" data-g="' + idx + '">' + esc(g.n) + "</button>";
+    if (g.assente || g.e == null) return { html: "<tr" + cls + '><td class="slot">' + esc(slot) + '</td><td><span class="gioc">' + avatar(g) +
+      '<span>' + nome + '<span class="det avv">nessuna previsione questa week (bye, fuori o non nel roster)</span></span></span></td><td class="pt">0,0</td></tr>', pt: 0 };
     var p = punti(g, sc);
     var e = g.e, top = ({ QB: [["pass_yd", 0, " yard pass"], ["pass_td", 1, " TD pass"], ["rush_yd", 0, " yard corsa"]],
       RB: [["rush_yd", 0, " yard corsa"], ["rec", 1, " ricezioni"], ["rec_yd", 0, " yard ric."]],
@@ -339,21 +402,101 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
     var det = esc(g.t) + (g.opp ? (g.casa ? " vs " : " @ ") + esc(g.opp) : "") +
       (g.p < 0.95 ? ' · <span class="avv">gioca al ' + fmt(g.p * 100, 0) + "%</span>" : "") +
       (g.giocata ? " · partita già giocata" : "") + (top ? " · " + top : "");
-    return { html: '<tr><td class="slot">' + esc(slot) + '</td><td><span class="chi">' + esc(g.n) + '</span><span class="det">' + det +
-      '</span></td><td class="pt">' + fmt(p.tot, 1) + "</td></tr>", pt: p.tot };
+    return { html: "<tr" + cls + '><td class="slot">' + esc(slot) + '</td><td><span class="gioc">' + avatar(g) + '<span>' + nome +
+      '<span class="det">' + det + '</span></span></span></td><td class="pt">' + fmt(p.tot, 1) + "</td></tr>", pt: p.tot };
+  }
+
+  // formazione ideale: i posti fissi prima, poi i flessibili dal piu' stretto; chi ha gia' giocato non si sposta
+  function ideale(slots, titolari, panca, w, sc) {
+    var pool = [], usati = {}, scelta = [];
+    function info(id) { var g = trova(id, w); return { id: id, g: g, pt: g && g.e ? punti(g, sc).tot : 0,
+      pos: g ? (g.r === "FB" ? "RB" : g.r) : null, fermo: bloccato(g) }; }
+    titolari.forEach(function (id) { if (id && id !== "0") pool.push(info(id)); });
+    panca.forEach(function (id) { pool.push(info(id)); });
+    var perId = {}; pool.forEach(function (x) { perId[x.id] = x; });
+    slots.forEach(function (t, i) {
+      var cur = titolari[i] && titolari[i] !== "0" ? perId[titolari[i]] : null;
+      if (!ELIG[t] || (cur && cur.fermo)) { scelta[i] = cur; if (cur) usati[cur.id] = 1; }
+    });
+    panca.forEach(function (id) { if (perId[id] && perId[id].fermo) usati[id] = 1; });
+    var ordine = slots.map(function (t, i) { return i; }).filter(function (i) { return scelta[i] === undefined; })
+      .sort(function (a, b) { return ELIG[slots[a]].length - ELIG[slots[b]].length; });
+    ordine.forEach(function (i) {
+      var c = pool.filter(function (x) { return !usati[x.id] && x.pos && ELIG[slots[i]].indexOf(x.pos) >= 0; })
+        .sort(function (a, b) { return b.pt - a.pt; })[0];
+      scelta[i] = c || null; if (c) usati[c.id] = 1;
+    });
+    var tot = 0, cambi = [];
+    scelta.forEach(function (x, i) {
+      if (x) tot += x.pt;
+      var cur = titolari[i] && titolari[i] !== "0" ? perId[titolari[i]] : null;
+      if ((x && x.id) !== (cur && cur.id)) cambi.push({ slot: slots[i], dentro: x, fuori: cur });
+    });
+    return { tot: tot, cambi: cambi };
   }
 
   function squadra(r, utenti, posti, w, sc) {
     var u = utenti[r.owner_id] || {}, nome = (u.metadata && u.metadata.team_name) || u.display_name || ("Squadra " + r.roster_id);
     var righe = [], tot = 0, slots = posti.filter(function (p) { return p !== "BN" && p !== "IR" && p !== "TAXI"; });
-    (r._titolari || []).forEach(function (id, i) {
+    var tit = r._titolari || [];
+    tit.forEach(function (id, i) {
       var slot = slots[i] || "";
       if (!id || id === "0") { righe.push('<tr><td class="slot">' + esc(slot) + '</td><td><span class="chi avv">posto vuoto</span></td><td class="pt">0,0</td></tr>'); return; }
       var x = riga(slot, trova(id, w), sc); righe.push(x.html); tot += x.pt;
     });
+    var fuoriRosa = {}; (r.reserve || []).concat(r.taxi || []).forEach(function (id) { fuoriRosa[id] = 1; });
+    var inCampo = {}; tit.forEach(function (id) { inCampo[id] = 1; });
+    var panca = (r._giocatori || r.players || []).filter(function (id) { return !inCampo[id] && !fuoriRosa[id]; });
+    var pr = panca.map(function (id) { var g = trova(id, w); return { id: id, g: g, pt: g && g.e ? punti(g, sc).tot : -1 }; })
+      .sort(function (a, b) { return b.pt - a.pt; });
+    if (pr.length) {
+      righe.push('<tr class="sep"><td></td><td colspan="2">Panchina</td></tr>');
+      pr.forEach(function (x) { righe.push(riga("BN", x.g, sc, true).html); });
+    }
+    var id_ = ideale(slots, tit, panca, w, sc), diff = id_.tot - tot, box;
+    if (diff > 0.05 && id_.cambi.length) {
+      box = '<div class="ideale"><b>Formazione ideale: ' + fmt(id_.tot, 1) + " punti (+" + fmt(diff, 1) + ")</b><ul>" +
+        id_.cambi.map(function (c) {
+          var dn = c.dentro ? esc(c.dentro.g ? c.dentro.g.n : c.dentro.id) + " (" + fmt(c.dentro.pt, 1) + ")" : "posto vuoto";
+          var fu = c.fuori ? esc(c.fuori.g ? c.fuori.g.n : c.fuori.id) + " (" + fmt(c.fuori.pt, 1) + ")" : "posto vuoto";
+          return "<li>" + esc(c.slot) + ": " + dn + " al posto di " + fu + "</li>"; }).join("") +
+        "</ul><span class=\"det\">Chi ha gia' giocato resta dov'e'.</span></div>";
+    } else {
+      box = '<div class="ideale">La formazione schierata e\' gia\' la migliore secondo AUREUS.</div>';
+    }
     return { nome: nome, tot: tot, html: '<table><thead><tr><th></th><th>' + esc(nome) + '</th><th style="text-align:right">punti</th></tr></thead><tbody>' +
-      righe.join("") + '<tr class="totale"><td></td><td>Totale previsto</td><td class="pt">' + fmt(tot, 1) + "</td></tr></tbody></table>" };
+      righe.join("") + '<tr class="totale"><td></td><td>Totale previsto</td><td class="pt">' + fmt(tot, 1) + "</td></tr></tbody></table>" + box };
   }
+
+  function scheda(g) {
+    var sc = scoringOra, e = g.e || {}, p = g.e ? punti(g, sc) : { tot: 0, parti: [] };
+    var stat = (STAT[g.r] || []).filter(function (k) { return e[k] != null; }).map(function (k) {
+      return "<tr><td>" + esc(ETI[k] || k) + "</td><td>" + fmt(e[k], /yd/.test(k) ? 0 : 1) + "</td></tr>"; }).join("");
+    if (g.r === "DEF" && g.pa != null) stat = "<tr><td>Punti concessi</td><td>" + fmt(g.pa, 1) + "</td></tr>" + stat;
+    var parti = p.parti.filter(function (x) { return Math.abs(x[1]) >= 0.05; }).sort(function (a, b) { return Math.abs(b[1]) - Math.abs(a[1]); })
+      .map(function (x) { return "<tr><td>" + esc(ETI[x[0]] || x[0]) + "</td><td>" + (x[1] > 0 ? "+" : "") + fmt(x[1], 1) + "</td></tr>"; }).join("");
+    var col = storiaCol[g.r] || storiaCol.ATT || [];
+    var storia = (g.h || []).map(function (h) { return "<tr><td>" + esc(h.d) + " " + (h.c ? "vs " : "@ ") + esc(h.o) + "</td>" +
+      h.v.map(function (x, i) { return "<td>" + (x == null ? "–" : fmt(x, col[i] === "PPR" ? 1 : 0)) + "</td>"; }).join("") + "</tr>"; }).join("");
+    var testa = g.opp ? (esc(g.t) + (g.casa ? " vs " : " @ ") + esc(g.opp) + (g.ko ? " · " + new Date(g.ko).toLocaleString("it-IT",
+      { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "")) : esc(g.t || "");
+    $("scheda-corpo").innerHTML = '<div class="testa">' + avatar(g) + "<div><h3>" + esc(g.n) + '</h3><div class="sub">' + testa +
+      (g.p != null && g.p < 0.95 ? " · gioca al " + fmt(g.p * 100, 0) + "%" : "") + "</div></div></div>" +
+      (g.e ? "<section><h4>Previsione AUREUS</h4><table><tbody>" + stat + "</tbody></table></section>" +
+        "<section><h4>Punti con le regole della tua lega: " + fmt(p.tot, 1) + "</h4><table><tbody>" + parti + "</tbody></table></section>"
+        : '<p class="perche">Nessuna previsione per questa week (bye, fuori o non nel roster).</p>') +
+      (storia ? '<section><h4>Ultime partite</h4><div class="scroll"><table><thead><tr><th>Partita</th>' +
+        col.map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "</tr></thead><tbody>" + storia + "</tbody></table></div></section>" : "") +
+      '<section><h4>Perché</h4><p class="perche">La spiegazione della previsione è in preparazione, come nelle pagine delle partite.</p></section>' +
+      '<button type="button" class="chiudi" id="chiudi">Chiudi</button>';
+    $("chiudi").addEventListener("click", function () { $("scheda").close(); });
+    $("scheda").showModal();
+  }
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest && ev.target.closest("button.nomeb");
+    if (b) scheda(registro[+b.dataset.g]);
+  });
+  $("scheda").addEventListener("click", function (ev) { if (ev.target === $("scheda")) $("scheda").close(); });
 
   function carica(w) {
     if (datiWeek[w]) return Promise.resolve(datiWeek[w]);
@@ -369,7 +512,7 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
         if (!L || !L.league_id) throw new Error("lega non trovata: controlla il codice");
         if (String(L.season) !== String(STAGIONE)) stato("Attenzione: la lega e' della stagione " + L.season + ", le previsioni del " + STAGIONE);
         var mancanti = [];
-        M.forEach(function (m) { (m.starters || []).forEach(function (id) { if (id && id !== "0" && !trova(id, w)) mancanti.push(id); }); });
+        M.forEach(function (m) { (m.players || m.starters || []).forEach(function (id) { if (id && id !== "0" && !trova(id, w)) mancanti.push(id); }); });
         var serve = mancanti.length && !giocatoriSleeper
           ? prendi(API + "/players/nfl").then(function (p) { giocatoriSleeper = p; }).catch(function () {})
           : Promise.resolve();
@@ -384,7 +527,9 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
     U.forEach(function (u) { utenti[u.user_id] = u; });
     var perRoster = {}; R.forEach(function (r) { perRoster[r.roster_id] = r; });
     var gruppi = {};
+    registro = []; scoringOra = sc; storiaCol = (datiWeek[w] && datiWeek[w].storia_colonne) || {};
     M.forEach(function (m) { var r = perRoster[m.roster_id] || { roster_id: m.roster_id }; r._titolari = m.starters || [];
+      r._giocatori = m.players || r.players || [];
       var k = m.matchup_id == null ? "x" + m.roster_id : m.matchup_id; (gruppi[k] = gruppi[k] || []).push(r); });
     var carte = Object.keys(gruppi).map(function (k) {
       var s = gruppi[k].map(function (r) { return squadra(r, utenti, posti, w, sc); });
@@ -402,7 +547,7 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
       "</p><p>AUREUS non le prevede ancora: i punti previsti non le includono.</p></details>" : "";
     $("esito").innerHTML = '<h2 class="lega-t">' + esc(L.name) + " &middot; week " + w + '</h2><p class="note">' +
       (sc.rec ? fmt(sc.rec, 1) + " punti a ricezione" : "senza punti a ricezione") +
-      (sc.rec_td_40p || sc.rush_td_40p || sc.pass_td_40p ? ", bonus TD da 40+ yard" : "") + ". Punti attesi dei titolari schierati ora su Sleeper.</p>" +
+      (sc.rec_td_40p || sc.rush_td_40p || sc.pass_td_40p ? ", bonus TD da 40+ yard" : "") + ". Punti attesi dei titolari schierati ora su Sleeper; sotto, la panchina e la formazione ideale. Clic sul nome: la scheda del giocatore.</p>" +
       nota + '<div class="sfide">' + carte.join("") + "</div>";
     stato("Fatto: " + M.length + " squadre.");
     ricorda(L);
