@@ -286,6 +286,15 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
 .scheda-sl .chiudi { align-self: flex-end; font: 600 14px var(--f-testo); padding: 6px 14px; border-radius: 8px;
   border: 1px solid var(--riga); background: var(--bg); color: var(--ink); cursor: pointer; }
 .scheda-sl .perche { font-size: 13px; color: var(--ink2); }
+.scheda-sl .giudizio { margin: 0 0 8px; font: 600 15px/1.35 var(--f-testo); color: var(--ink); }
+.scheda-sl ul.perche-l, .scheda-sl ul.chicche { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.45; }
+.scheda-sl ul.perche-l li, .scheda-sl ul.chicche li { margin-bottom: 5px; }
+.scheda-sl h4.sotto { margin-top: 12px; }
+.scheda-sl ul.chicche { list-style: none; padding-left: 0; }
+.scheda-sl ul.chicche li { padding: 6px 10px; border-left: 3px solid var(--riga); background: var(--bg); border-radius: 0 6px 6px 0; }
+.scheda-sl ul.chicche li.ch-pos { border-left-color: var(--ok); }
+.scheda-sl ul.chicche li.ch-neg { border-left-color: var(--fuori); }
+.scheda-sl ul.chicche li.ch-info { border-left-color: var(--riga); color: var(--ink2); font-size: 12.5px; background: transparent; }
 </style>
 <script>
 (function () {
@@ -468,6 +477,17 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
       righe.join("") + '<tr class="totale"><td></td><td>Totale previsto</td><td class="pt">' + fmt(tot, 1) + "</td></tr></tbody></table>" + box };
   }
 
+  function perche(g) {
+    var m = g.m;
+    if (!m) return '<section><h4>Perché</h4><p class="perche">' + (/^(RB|WR|TE)$/.test(g.r) || !g.e ? "Nessuna spiegazione per questa week." :
+      "La spiegazione per questo ruolo è in preparazione: per ora ci sono RB, WR e TE.") + "</p></section>";
+    var r = (m.r || []).map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("");
+    var c = (m.c || []).map(function (x) {
+      return '<li class="ch ch-' + (x.s === "+" ? "pos" : x.s === "-" ? "neg" : "info") + '">' + esc(x.t) + "</li>"; }).join("");
+    return '<section><h4>Perché</h4><p class="giudizio">' + esc(m.g) + "</p>" + (r ? '<ul class="perche-l">' + r + "</ul>" : "") +
+      (c ? '<h4 class="sotto">Il confronto con la difesa</h4><ul class="chicche">' + c + "</ul>" : "") + "</section>";
+  }
+
   function scheda(g) {
     var sc = scoringOra, e = g.e || {}, p = g.e ? punti(g, sc) : { tot: 0, parti: [] };
     var stat = (STAT[g.r] || []).filter(function (k) { return e[k] != null; }).map(function (k) {
@@ -487,7 +507,7 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
         : '<p class="perche">Nessuna previsione per questa week (bye, fuori o non nel roster).</p>') +
       (storia ? '<section><h4>Ultime partite</h4><div class="scroll"><table><thead><tr><th>Partita</th>' +
         col.map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "</tr></thead><tbody>" + storia + "</tbody></table></div></section>" : "") +
-      '<section><h4>Perché</h4><p class="perche">La spiegazione della previsione è in preparazione, come nelle pagine delle partite.</p></section>' +
+      perche(g) +
       '<button type="button" class="chiudi" id="chiudi">Chiudi</button>';
     $("chiudi").addEventListener("click", function () { $("scheda").close(); });
     $("scheda").showModal();
