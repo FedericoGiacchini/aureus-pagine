@@ -192,6 +192,15 @@ table.tab.vert td { text-align: right; }
 .perche { margin: 0; border: 1px dashed var(--riga); border-radius: 8px; padding: 12px 14px; color: var(--ink2);
   font-size: 13.5px; }
 p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
+.sch .giudizio { margin: 0 0 8px; font: 600 15px/1.4 var(--f-testo); color: var(--ink); }
+.sch ul.perche-l, .sch ul.chicche { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
+.sch ul.perche-l li, .sch ul.chicche li { margin-bottom: 6px; }
+.sch h4.sotto { margin: 14px 0 6px; font: 600 12px var(--f-testo); text-transform: uppercase; letter-spacing: .06em; color: var(--ink2); }
+.sch ul.chicche { list-style: none; padding-left: 0; }
+.sch ul.chicche li { padding: 7px 11px; border-left: 3px solid var(--riga); background: var(--bg); border-radius: 0 6px 6px 0; }
+.sch ul.chicche li.ch-pos { border-left-color: var(--ok); }
+.sch ul.chicche li.ch-neg { border-left-color: var(--fuori); }
+.sch ul.chicche li.ch-info { color: var(--ink2); font-size: 12.5px; background: transparent; }
 @media (prefers-reduced-motion: no-preference) { nav.indice a { transition: background .15s; } }
 </style>
 <div class="pagina sl">
@@ -244,6 +253,29 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
   .sl .testa-s { grid-template-columns: 1fr 1fr; grid-template-areas: "a b" "t t"; }
   .sl .testa-s .nome { grid-area: a; } .sl .testa-s .nome.dx { grid-area: b; }
   .sl .testa-s .tot { grid-area: t; text-align: center; } }
+.sl .coppia { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14px; font-size: 13.5px; }
+.sl .coppia > .sx { grid-column: 1; grid-row: var(--r); }
+.sl .coppia > .dx { grid-column: 2; grid-row: var(--r); }
+.sl .coppia.sola { grid-template-columns: 1fr; }
+.sl .coppia > div { min-width: 0; display: flex; flex-direction: column; }
+.sl .coppia > div > .rg { flex: 1; }
+.sl .rg { display: grid; grid-template-columns: 3.2em 1fr auto; gap: 6px; padding: 6px 4px; border-bottom: 1px solid var(--riga);
+  align-items: start; }
+.sl .rg .slot { color: var(--ink2); font-size: 12px; padding-top: 2px; }
+.sl .rg .pt { text-align: right; font-weight: 700; white-space: nowrap; }
+.sl .rg.testa { font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase; letter-spacing: .05em; }
+.sl .rg.testa .pt { font-weight: 600; }
+.sl .rg.sep { font: 600 11px var(--f-testo); text-transform: uppercase; letter-spacing: .06em; color: var(--ink2); padding-top: 12px; }
+.sl .rg.totale { border-bottom: 0; font-weight: 700; }
+.sl .rg.panca { color: var(--ink2); }
+.sl .rg.panca .nomeb { color: var(--ink2); }
+.sl .rg.reale .pt { color: var(--ok); }
+.sl .fatto { color: var(--ok); }
+.sl .coppia > div > .ideale { margin-top: 8px; }
+@media (max-width: 560px) { .sl .coppia { grid-template-columns: 1fr; }
+  .sl .coppia > .sx, .sl .coppia > .dx { grid-column: 1; grid-row: auto; }
+  .sl .coppia > .dx { order: 1; }
+  .sl .coppia > .dx:empty, .sl .coppia > .sx:empty { display: none; } }
 .sl table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .sl th { text-align: left; font: 600 12px var(--f-testo); color: var(--ink2); text-transform: uppercase;
   letter-spacing: .05em; padding: 4px 4px; border-bottom: 1px solid var(--riga); }
@@ -257,9 +289,10 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
 .sl details { font-size: 13px; color: var(--ink2); }
 .sl .gioc { display: flex; gap: 8px; align-items: flex-start; }
 .sl .av { width: 34px; height: 34px; border-radius: 50%; flex: 0 0 34px; background: var(--riga); object-fit: cover;
-  overflow: hidden; display: inline-flex; align-items: center; justify-content: center; font: 600 12px var(--f-testo);
+  overflow: hidden; display: inline-grid; place-items: center; font: 600 12px var(--f-testo);
   color: var(--ink2); }
-.sl .av img { width: 100%; height: 100%; object-fit: cover; }
+.sl .av > * { grid-area: 1 / 1; }
+.sl .av img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; }
 .sl button.nomeb { all: unset; cursor: pointer; font-weight: 600; display: block; color: var(--ink); }
 .sl button.nomeb:hover, .sl button.nomeb:focus-visible { text-decoration: underline; color: var(--accento); }
 .sl tr.panca td { color: var(--ink2); background: color-mix(in srgb, var(--bg) 60%, transparent); }
@@ -336,7 +369,8 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
   function avatar(g) {
     var ini = esc(iniziali(g && g.n));
     if (!g || !g.f) return '<span class="av">' + ini + "</span>";
-    return '<span class="av"><img src="' + esc(g.f) + '" alt="" loading="lazy" onerror="this.parentNode.textContent=\'' + ini + '\'"></span>';
+    return '<span class="av"><span>' + ini + '</span><img src="' + esc(g.f) + '" alt="" loading="lazy" ' +
+      'onload="this.parentNode.classList.add(\'ok\')" onerror="this.remove()"></span>';
   }
   function bloccato(g) { return !!g && (g.giocata || (g.ko && new Date(g.ko) <= new Date())); }
 
@@ -394,31 +428,46 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     return null;
   }
 
-  function riga(slot, g, sc, panca) {
-    var cls = panca ? ' class="panca"' : "";
-    if (!g) return { html: "<tr" + cls + '><td class="slot">' + esc(slot) + '</td><td><span class="chi avv">giocatore non riconosciuto</span></td><td class="pt">–</td></tr>', pt: 0 };
+  // una riga = un giocatore; le righe delle due squadre stanno nella stessa griglia, cosi' restano allineate
+  function rg(cls, slot, cella, pt) {
+    return '<div class="rg' + (cls ? " " + cls : "") + '"><span class="slot">' + esc(slot) + '</span><span class="cella">' + cella +
+      '</span><span class="pt">' + pt + "</span></div>";
+  }
+  // punti reali (Sleeper, con le regole della lega) per chi ha gia' giocato o sta giocando, altrimenti previsti
+  function puntiGioc(g, sc, reali, id) {
+    var prev = g && g.e ? punti(g, sc).tot : 0;
+    var r = reali && id != null ? reali[id] : null;
+    if (g && bloccato(g) && r != null && !isNaN(r)) return { pt: +r, prev: prev, reale: true };
+    return { pt: prev, prev: prev, reale: false };
+  }
+  function riga(slot, g, sc, panca, reali, id) {
+    var cls = panca ? "panca" : "";
+    if (!g) return { html: rg(cls, slot, '<span class="chi avv">giocatore non riconosciuto</span>', "–"), pt: 0 };
     var idx = registro.push(g) - 1;
     var nome = '<button type="button" class="nomeb" data-g="' + idx + '">' + esc(g.n) + "</button>";
-    if (g.assente || g.e == null) return { html: "<tr" + cls + '><td class="slot">' + esc(slot) + '</td><td><span class="gioc">' + avatar(g) +
-      '<span>' + nome + '<span class="det avv">nessuna previsione questa week (bye, fuori o non nel roster)</span></span></span></td><td class="pt">0,0</td></tr>', pt: 0 };
-    var p = punti(g, sc);
+    if (g.assente || g.e == null) return { html: rg(cls, slot, '<span class="gioc">' + avatar(g) + '<span>' + nome +
+      '<span class="det avv">nessuna previsione questa week (bye, fuori o non nel roster)</span></span></span>', "0,0"), pt: 0 };
+    var q = puntiGioc(g, sc, reali, id);
     var e = g.e, top = ({ QB: [["pass_yd", 0, " yard pass"], ["pass_td", 1, " TD pass"], ["rush_yd", 0, " yard corsa"]],
       RB: [["rush_yd", 0, " yard corsa"], ["rec", 1, " ricezioni"], ["rec_yd", 0, " yard ric."]],
       WR: [["rec", 1, " ricezioni"], ["rec_yd", 0, " yard"]], TE: [["rec", 1, " ricezioni"], ["rec_yd", 0, " yard"]],
       K: [["fgm", 1, " field goal"], ["xpm", 1, " extra point"]] }[g.r] || [])
       .filter(function (x) { return e[x[0]] >= 0.05; }).map(function (x) { return fmt(e[x[0]], x[1]) + x[2]; }).join(", ");
     if (g.r === "DEF" && g.pa != null) top = fmt(g.pa, 1) + " punti concessi, " + fmt(e.sack || 0, 1) + " sack";
+    var stato = "";
+    if (q.reale) stato = ' · <b class="fatto">' + (g.giocata ? "giocata" : "in corso") + ": " + fmt(q.pt, 1) + " punti</b> (previsti " + fmt(q.prev, 1) + ")";
+    else if (bloccato(g)) stato = " · partita già iniziata";
     var det = esc(g.t) + (g.opp ? (g.casa ? " vs " : " @ ") + esc(g.opp) : "") +
-      (g.p < 0.95 ? ' · <span class="avv">gioca al ' + fmt(g.p * 100, 0) + "%</span>" : "") +
-      (g.giocata ? " · partita già giocata" : "") + (top ? " · " + top : "");
-    return { html: "<tr" + cls + '><td class="slot">' + esc(slot) + '</td><td><span class="gioc">' + avatar(g) + '<span>' + nome +
-      '<span class="det">' + det + '</span></span></span></td><td class="pt">' + fmt(p.tot, 1) + "</td></tr>", pt: p.tot };
+      (g.p < 0.95 && !q.reale ? ' · <span class="avv">gioca al ' + fmt(g.p * 100, 0) + "%</span>" : "") +
+      stato + (top && !q.reale ? " · " + top : "");
+    return { html: rg(cls + (q.reale ? " reale" : ""), slot, '<span class="gioc">' + avatar(g) + '<span>' + nome +
+      '<span class="det">' + det + '</span></span></span>', fmt(q.pt, 1)), pt: q.pt, reale: q.reale };
   }
 
   // formazione ideale: i posti fissi prima, poi i flessibili dal piu' stretto; chi ha gia' giocato non si sposta
-  function ideale(slots, titolari, panca, w, sc) {
+  function ideale(slots, titolari, panca, w, sc, reali) {
     var pool = [], usati = {}, scelta = [];
-    function info(id) { var g = trova(id, w); return { id: id, g: g, pt: g && g.e ? punti(g, sc).tot : 0,
+    function info(id) { var g = trova(id, w); return { id: id, g: g, pt: puntiGioc(g, sc, reali, id).pt,
       pos: g ? (g.r === "FB" ? "RB" : g.r) : null, fermo: bloccato(g) }; }
     titolari.forEach(function (id) { if (id && id !== "0") pool.push(info(id)); });
     panca.forEach(function (id) { pool.push(info(id)); });
@@ -435,46 +484,72 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
         .sort(function (a, b) { return b.pt - a.pt; })[0];
       scelta[i] = c || null; if (c) usati[c.id] = 1;
     });
-    var tot = 0, cambi = [];
-    scelta.forEach(function (x, i) {
-      if (x) tot += x.pt;
-      var cur = titolari[i] && titolari[i] !== "0" ? perId[titolari[i]] : null;
-      if ((x && x.id) !== (cur && cur.id)) cambi.push({ slot: slots[i], dentro: x, fuori: cur });
+    // i cambi sono chi entra e chi esce dalla formazione: spostare un titolare da uno slot all'altro (es. da WR a
+    // FLEX) non cambia i punti e non e' un consiglio
+    var tot = 0, ora = {}, dopo = {};
+    titolari.forEach(function (id) { if (id && id !== "0") ora[id] = 1; });
+    scelta.forEach(function (x) { if (x) { tot += x.pt; dopo[x.id] = 1; } });
+    var entrano = scelta.filter(function (x) { return x && !ora[x.id]; });
+    var escono = titolari.filter(function (id) { return id && id !== "0" && !dopo[id]; }).map(function (id) { return perId[id]; });
+    var vuoti = slots.filter(function (t, i) { return !titolari[i] || titolari[i] === "0"; }).length;
+    var cambi = [];
+    entrano.sort(function (a, b) { return b.pt - a.pt; }).forEach(function (x) {
+      var k = escono.findIndex(function (y) { return y && y.pos === x.pos; });
+      if (k < 0) k = escono.findIndex(function (y) { return !!y; });
+      var y = k >= 0 ? escono.splice(k, 1)[0] : null;
+      if (!y && vuoti > 0) vuoti -= 1;
+      cambi.push({ slot: x.pos || "", dentro: x, fuori: y });
     });
     return { tot: tot, cambi: cambi };
   }
 
   function squadra(r, utenti, posti, w, sc) {
     var u = utenti[r.owner_id] || {}, nome = (u.metadata && u.metadata.team_name) || u.display_name || ("Squadra " + r.roster_id);
-    var righe = [], tot = 0, slots = posti.filter(function (p) { return p !== "BN" && p !== "IR" && p !== "TAXI"; });
-    var tit = r._titolari || [];
+    var tit_ = [], panca_ = [], tot = 0, reali_ = false, slots = posti.filter(function (p) { return p !== "BN" && p !== "IR" && p !== "TAXI"; });
+    var tit = r._titolari || [], pp = r._punti || {};
     tit.forEach(function (id, i) {
       var slot = slots[i] || "";
-      if (!id || id === "0") { righe.push('<tr><td class="slot">' + esc(slot) + '</td><td><span class="chi avv">posto vuoto</span></td><td class="pt">0,0</td></tr>'); return; }
-      var x = riga(slot, trova(id, w), sc); righe.push(x.html); tot += x.pt;
+      if (!id || id === "0") { tit_.push(rg("", slot, '<span class="chi avv">posto vuoto</span>', "0,0")); return; }
+      var x = riga(slot, trova(id, w), sc, false, pp, id); tit_.push(x.html); tot += x.pt; if (x.reale) reali_ = true;
     });
     var fuoriRosa = {}; (r.reserve || []).concat(r.taxi || []).forEach(function (id) { fuoriRosa[id] = 1; });
     var inCampo = {}; tit.forEach(function (id) { inCampo[id] = 1; });
     var panca = (r._giocatori || r.players || []).filter(function (id) { return !inCampo[id] && !fuoriRosa[id]; });
-    var pr = panca.map(function (id) { var g = trova(id, w); return { id: id, g: g, pt: g && g.e ? punti(g, sc).tot : -1 }; })
+    var pr = panca.map(function (id) { var g = trova(id, w); return { id: id, g: g, pt: g && g.e ? puntiGioc(g, sc, pp, id).pt : -1 }; })
       .sort(function (a, b) { return b.pt - a.pt; });
-    if (pr.length) {
-      righe.push('<tr class="sep"><td></td><td colspan="2">Panchina</td></tr>');
-      pr.forEach(function (x) { righe.push(riga("BN", x.g, sc, true).html); });
-    }
-    var id_ = ideale(slots, tit, panca, w, sc), diff = id_.tot - tot, box;
+    pr.forEach(function (x) { panca_.push(riga("BN", x.g, sc, true, pp, x.id).html); });
+    var id_ = ideale(slots, tit, panca, w, sc, pp), diff = id_.tot - tot, box;
     if (diff > 0.05 && id_.cambi.length) {
       box = '<div class="ideale"><b>Formazione ideale: ' + fmt(id_.tot, 1) + " punti (+" + fmt(diff, 1) + ")</b><ul>" +
         id_.cambi.map(function (c) {
           var dn = c.dentro ? esc(c.dentro.g ? c.dentro.g.n : c.dentro.id) + " (" + fmt(c.dentro.pt, 1) + ")" : "posto vuoto";
           var fu = c.fuori ? esc(c.fuori.g ? c.fuori.g.n : c.fuori.id) + " (" + fmt(c.fuori.pt, 1) + ")" : "posto vuoto";
           return "<li>" + esc(c.slot) + ": " + dn + " al posto di " + fu + "</li>"; }).join("") +
-        "</ul><span class=\"det\">Chi ha gia' giocato resta dov'e'.</span></div>";
+        "</ul><span class=\"det\">Chi ha già giocato resta dov'è.</span></div>";
     } else {
-      box = '<div class="ideale">La formazione schierata e\' gia\' la migliore secondo AUREUS.</div>';
+      box = '<div class="ideale">La formazione schierata è già la migliore secondo AUREUS.</div>';
     }
-    return { nome: nome, tot: tot, html: '<table><thead><tr><th></th><th>' + esc(nome) + '</th><th style="text-align:right">punti</th></tr></thead><tbody>' +
-      righe.join("") + '<tr class="totale"><td></td><td>Totale previsto</td><td class="pt">' + fmt(tot, 1) + "</td></tr></tbody></table>" + box };
+    var testa = '<div class="rg testa"><span class="slot"></span><span class="cella">' + esc(nome) + '</span><span class="pt">punti</span></div>';
+    var totale = rg("totale", "", reali_ ? "Totale (fatti + previsti)" : "Totale previsto", fmt(tot, 1));
+    return { nome: nome, tot: tot, testa: testa, tit: tit_, panca: panca_, totale: totale, box: box };
+  }
+
+  // le due squadre nella stessa griglia: riga per riga (titolari, panchina, totale) cosi' i ruoli restano allineati;
+  // su telefono una colonna, prima tutta una squadra e poi l'altra
+  function coppia(a, b) {
+    var lati = b ? [a, b] : [a], celle = [], r = 1;
+    function fila(pezzi) { pezzi.forEach(function (h, k) { celle.push('<div class="' + (k ? "dx" : "sx") + '" style="--r:' + r + '">' + (h || "") + "</div>"); }); r += 1; }
+    fila(lati.map(function (x) { return x.testa; }));
+    var n = Math.max.apply(null, lati.map(function (x) { return x.tit.length; }));
+    for (var i = 0; i < n; i++) fila(lati.map(function (x) { return x.tit[i] || ""; }));
+    var np = Math.max.apply(null, lati.map(function (x) { return x.panca.length; }));
+    if (np) {
+      fila(lati.map(function (x) { return x.panca.length ? '<div class="rg sep"><span class="slot"></span><span class="cella">Panchina</span><span class="pt"></span></div>' : ""; }));
+      for (var j = 0; j < np; j++) fila(lati.map(function (x) { return x.panca[j] || ""; }));
+    }
+    fila(lati.map(function (x) { return x.totale; }));
+    fila(lati.map(function (x) { return x.box; }));
+    return '<div class="coppia' + (b ? "" : " sola") + '">' + celle.join("") + "</div>";
   }
 
   function perche(g) {
@@ -549,17 +624,18 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     var gruppi = {};
     registro = []; scoringOra = sc; storiaCol = (datiWeek[w] && datiWeek[w].storia_colonne) || {};
     M.forEach(function (m) { var r = perRoster[m.roster_id] || { roster_id: m.roster_id }; r._titolari = m.starters || [];
+      r._punti = m.players_points || {};
       r._giocatori = m.players || r.players || [];
       var k = m.matchup_id == null ? "x" + m.roster_id : m.matchup_id; (gruppi[k] = gruppi[k] || []).push(r); });
     var carte = Object.keys(gruppi).map(function (k) {
       var s = gruppi[k].map(function (r) { return squadra(r, utenti, posti, w, sc); });
       var a = s[0], b = s[1];
       if (!b) return '<section class="sfida"><div class="testa-s"><span class="nome">' + esc(a.nome) + '</span><span class="tot">' + fmt(a.tot, 1) +
-        '</span><span></span></div><div class="colonne"><div>' + a.html + "</div></div></section>";
+        '</span><span></span></div>' + coppia(a) + "</section>";
       var dif = a.tot - b.tot, fav = Math.abs(dif) < 0.5 ? "sfida in equilibrio" : esc(dif > 0 ? a.nome : b.nome) + " favorita di " + fmt(Math.abs(dif), 1) + " punti";
       return '<section class="sfida"><div class="testa-s"><span class="nome">' + esc(a.nome) + '</span><span class="tot">' + fmt(a.tot, 1) +
         '<span class="tr">–</span>' + fmt(b.tot, 1) + '</span><span class="nome dx">' + esc(b.nome) + '</span></div><div class="fav">' + fav +
-        '</div><div class="colonne"><div>' + a.html + "</div><div>" + b.html + "</div></div></section>";
+        '</div>' + coppia(a, b) + "</section>";
     });
     var ng = nonGestite(sc);
     var nota = ng.length ? '<details><summary>Voci di punteggio della lega non conteggiate (' + ng.length + ")</summary><p>" +
