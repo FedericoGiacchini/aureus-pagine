@@ -192,6 +192,25 @@ table.tab.vert td { text-align: right; }
 .perche { margin: 0; border: 1px dashed var(--riga); border-radius: 8px; padding: 12px 14px; color: var(--ink2);
   font-size: 13.5px; }
 p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
+.bilancio { margin: 0 0 12px; padding: 10px 14px; background: var(--carta); border: 1px solid var(--riga); border-left: 3px solid var(--accento);
+  border-radius: 0 10px 10px 0; font-size: 14px; }
+.carta .info-c { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--riga);
+  font-size: 12.5px; color: var(--ink2); }
+.carta .info-c span::first-letter { text-transform: uppercase; }
+.carta .esito { display: block; font-size: 12.5px; font-weight: 600; margin-top: 2px; }
+.carta .esito.ok { color: var(--ok); } .carta .esito.ko { color: var(--fuori); }
+.perche-p { background: var(--carta); border: 1px solid var(--riga); border-radius: 10px; padding: 14px 16px; }
+.perche-p p { margin: 0 0 8px; font-size: 15px; line-height: 1.55; } .perche-p p.vuoto { font-size: 12.5px; margin: 6px 0 0; }
+.as-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+@media (max-width: 640px) { .as-grid { grid-template-columns: 1fr; } }
+.as-lato h3 { margin: 0 0 6px; font: 600 15px var(--f-display); display: flex; gap: 6px; align-items: center; padding-bottom: 4px; }
+ul.assenze { list-style: none; margin: 0; padding: 0; background: var(--carta); border: 1px solid var(--riga); border-radius: 10px; }
+ul.assenze li { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 12px; border-bottom: 1px solid var(--riga); font-size: 14px; }
+ul.assenze li:last-child { border-bottom: 0; }
+ul.assenze .as-n { font-weight: 600; } ul.assenze .as-n .ru { font-weight: 400; color: var(--ink2); font-size: 12px; }
+ul.assenze .as-p { grid-column: 1 / -1; color: var(--ink2); font-size: 12.5px; }
+.as-f { color: var(--fuori); font-weight: 600; font-size: 13px; } .as-d { color: var(--sotto); font-weight: 600; font-size: 13px; }
+.as-r { color: var(--ok); font-weight: 600; font-size: 13px; }
 .sch .giudizio { margin: 0 0 8px; font: 600 15px/1.4 var(--f-testo); color: var(--ink); }
 .sch ul.perche-l, .sch ul.chicche { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
 .sch ul.perche-l li, .sch ul.chicche li { margin-bottom: 6px; }
@@ -390,13 +409,13 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
   function perche(g) {
     var m = g.m;
     if (!m) return '<section><h4>Perché</h4><p class="perche">' + (/^(QB|RB|WR|TE)$/.test(g.r) || !g.e ? "Nessuna spiegazione per questa week." :
-      "La spiegazione per questo ruolo è in preparazione: per ora ci sono QB, RB, WR e TE.") + "</p></section>";
+      "Nessuna spiegazione per questa week.") + "</p></section>";
     if (m.sez) {
       var c2 = (m.c || []).map(function (x) {
         return '<li class="ch ch-' + (x.s === "+" ? "pos" : x.s === "-" ? "neg" : "info") + '">' + esc(x.t) + "</li>"; }).join("");
       return '<section><h4>Perché</h4><p class="giudizio">' + esc(m.g) + "</p>" +
         m.sez.map(function (x) { return '<h4 class="sotto">' + esc(x.t) + '</h4><p class="racconto">' + esc(x.p) + "</p>"; }).join("") +
-        (c2 ? '<h4 class="sotto">Il confronto con la difesa</h4><ul class="chicche">' + c2 + "</ul>" : "") +
+        (c2 ? '<h4 class="sotto">' + esc(m.ct || "Il confronto con la difesa") + '</h4><ul class="chicche">' + c2 + "</ul>" : "") +
         (m.r1 ? '<p class="unariga"><b>In una riga.</b> ' + esc(m.r1) + "</p>" : "") +
         (m.n ? '<p class="nota-p">' + esc(m.n) + "</p>" : "") + "</section>";
     }
