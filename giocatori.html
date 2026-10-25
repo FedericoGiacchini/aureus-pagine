@@ -379,8 +379,8 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
 
   function perche(g) {
     var m = g.m;
-    if (!m) return '<section><h4>Perché</h4><p class="perche">' + (/^(RB|WR|TE)$/.test(g.r) || !g.e ? "Nessuna spiegazione per questa week." :
-      "La spiegazione per questo ruolo è in preparazione: per ora ci sono RB, WR e TE.") + "</p></section>";
+    if (!m) return '<section><h4>Perché</h4><p class="perche">' + (/^(QB|RB|WR|TE)$/.test(g.r) || !g.e ? "Nessuna spiegazione per questa week." :
+      "La spiegazione per questo ruolo è in preparazione: per ora ci sono QB, RB, WR e TE.") + "</p></section>";
     var r = (m.r || []).map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("");
     var c = (m.c || []).map(function (x) {
       return '<li class="ch ch-' + (x.s === "+" ? "pos" : x.s === "-" ? "neg" : "info") + '">' + esc(x.t) + "</li>"; }).join("");
