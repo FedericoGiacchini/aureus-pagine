@@ -229,6 +229,7 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
     <button type="button" data-r="QB">QB</button><button type="button" data-r="RB" class="on">RB</button>
     <button type="button" data-r="WR">WR</button><button type="button" data-r="TE">TE</button>
     <button type="button" data-r="K">K</button><button type="button" data-r="DEF">D/ST</button>
+    <button type="button" id="chi-segna" class="extra">Chi segna un TD</button>
   </div>
   <div id="stato" class="stato" role="status"></div>
 </header>
@@ -255,6 +256,7 @@ p.vuoto { margin: 0; color: var(--ink2); font-size: 13px; }
 .gi .ruoli button { font: 600 14px var(--f-testo); padding: 6px 14px; border: 1px solid var(--riga); border-radius: 999px;
   background: var(--carta); color: var(--ink); cursor: pointer; }
 .gi .ruoli button.on { background: var(--accento); border-color: var(--accento); color: #fff; }
+.gi .ruoli button.extra { border-style: dashed; }
 .sl .stato { font-size: 14px; color: var(--ink2); min-height: 1.2em; }
 .sl .stato.err { color: var(--fuori); }
 .gi .tab-w { overflow-x: auto; border: 1px solid var(--riga); border-radius: 10px; background: var(--carta); }
@@ -410,6 +412,8 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     var stat = (STAT[g.r] || []).filter(function (k) { return e[k] != null; }).map(function (k) {
       return "<tr><td>" + esc(ETI[k] || k) + "</td><td>" + fmt(e[k], /yd/.test(k) ? 0 : 1) + "</td></tr>"; }).join("");
     if (g.r === "DEF" && g.pa != null) stat = "<tr><td>Punti concessi</td><td>" + fmt(g.pa, 1) + "</td></tr>" + stat;
+    if ((e.rush_td || 0) + (e.rec_td || 0) > 0.01) stat = '<tr class="any"><td><b>Segna almeno un TD (corsa o ricezione)</b></td><td><b>' +
+      fmt((1 - Math.exp(-((e.rush_td || 0) + (e.rec_td || 0)))) * 100, 0) + "%</b></td></tr>" + stat;
     var parti = p.parti.filter(function (x) { return Math.abs(x[1]) >= 0.05; }).sort(function (a, b) { return Math.abs(b[1]) - Math.abs(a[1]); })
       .map(function (x) { return "<tr><td>" + esc(ETI[x[0]] || x[0]) + "</td><td>" + (x[1] > 0 ? "+" : "") + fmt(x[1], 1) + "</td></tr>"; }).join("");
     var col = storiaCol[g.r] || storiaCol.ATT || [];
@@ -441,12 +445,12 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     pts_allow_35p: -4 };
   function preset(k) { return Object.assign({}, BASE, { rec: k === "ppr" ? 1 : k === "half" ? 0.5 : 0 }); }
   // colonne per ruolo (in ordine); "td" = TD su corsa + su ricezione, "pa" = punti concessi
-  var COL = { QB: ["pass_att", "pass_cmp", "pass_yd", "pass_td", "pass_int", "rush_att", "rush_yd", "td"],
-    RB: ["rush_att", "rush_yd", "rec_tgt", "rec", "rec_yd", "td"], WR: ["rec_tgt", "rec", "rec_yd", "rush_yd", "td"],
-    TE: ["rec_tgt", "rec", "rec_yd", "td"], K: ["fga", "fgm", "fgm_40_49", "fgm_50p", "xpm"],
+  var COL = { QB: ["pass_att", "pass_cmp", "pass_yd", "pass_td", "pass_int", "rush_att", "rush_yd", "td_any"],
+    RB: ["td_any", "rush_att", "rush_yd", "rec_tgt", "rec", "rec_yd", "td"], WR: ["td_any", "rec_tgt", "rec", "rec_yd", "rush_yd", "td"],
+    TE: ["td_any", "rec_tgt", "rec", "rec_yd", "td"], K: ["fga", "fgm", "fgm_40_49", "fgm_50p", "xpm"],
     DEF: ["pa", "sack", "int", "fum_rec", "def_td"] };
   var ETI_C = { pass_att: "Pass. tent.", pass_cmp: "Completi", pass_yd: "Yard pass.", pass_td: "TD pass.", pass_int: "Int.",
-    rush_att: "Corse", rush_yd: "Yard corsa", rec_tgt: "Target", rec: "Ric.", rec_yd: "Yard ric.", td: "TD corsa+ric.",
+    rush_att: "Corse", rush_yd: "Yard corsa", rec_tgt: "Target", rec: "Ric.", rec_yd: "Yard ric.", td: "TD corsa+ric.", td_any: "Segna un TD",
     fga: "FG tent.", fgm: "FG", fgm_40_49: "FG 40-49", fgm_50p: "FG 50+", xpm: "XP", pa: "Punti concessi", sack: "Sack",
     int: "Intercetti", fum_rec: "Fumble rec.", def_td: "TD difesa" };
   var DEC = { pass_yd: 0, rush_yd: 0, rec_yd: 0 };
@@ -457,6 +461,7 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     if (k === "_pt") return g._pt;
     if (k === "_fatti") return g._fatti;
     if (k === "td") return (e.rush_td || 0) + (e.rec_td || 0);
+    if (k === "td_any") return 1 - Math.exp(-((e.rush_td || 0) + (e.rec_td || 0)));
     if (k === "pa") return g.pa;
     return e[k];
   }
@@ -490,6 +495,7 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     lista.forEach(function (g) { g._pt = punti(g, sc).tot; g._fatti = fatti(g, w); });
     var cols = [];
     scelti.forEach(function (r) { (COL[r] || []).forEach(function (c) { if (cols.indexOf(c) < 0) cols.push(c); }); });
+    if (ord === "td_any" && cols.indexOf("td_any") > 0) { cols.splice(cols.indexOf("td_any"), 1); cols.unshift("td_any"); }
     var conFatti = lista.some(function (g) { return g._fatti != null; });
     lista.sort(function (a, b) {
       var x = valore(a, ord), y = valore(b, ord);
@@ -507,7 +513,9 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
       return "<tr><td class=\"pos\">" + (i + 1) + '</td><td class="n"><span class="gioc">' + avatar(g) + '<span><button type="button" class="nomeb" data-i="' + i + '">' +
         esc(g.n) + '</button><span class="det">' + esc(g.r === "DEF" ? "D/ST" : g.r) + " · " + det + "</span></span></span></td>" +
         '<td class="pt">' + fmt(g._pt, 1) + "</td>" + (conFatti ? '<td class="fatti">' + (g._fatti == null ? "" : fmt(g._fatti, 1)) + "</td>" : "") +
-        cols.map(function (c) { var v = valore(g, c); return "<td>" + (v == null ? "" : fmt(v, DEC[c] === 0 ? 0 : 1)) + "</td>"; }).join("") + "</tr>";
+        cols.map(function (c) { var v = valore(g, c);
+          if (c === "td_any") return '<td class="pt">' + (v == null ? "" : fmt(v * 100, 0) + "%") + "</td>";
+          return "<td>" + (v == null ? "" : fmt(v, DEC[c] === 0 ? 0 : 1)) + "</td>"; }).join("") + "</tr>";
     }).join("");
     $("esito").innerHTML = '<p class="legenda">' + lista.length + " giocatori. Punti " + ({ ppr: "PPR", half: "Half PPR", std: "Standard", lega: "con le regole della lega" }[$("punteggio").value]) +
       ". Clic sul nome di una statistica per ordinare (di nuovo per invertire), sul giocatore per la scheda.</p>" +
@@ -522,7 +530,13 @@ dialog.scheda-sl::backdrop { background: rgba(0,0,0,.45); }
     var b = ev.target.closest && ev.target.closest("button.nomeb[data-i]");
     if (b) scheda(lista[+b.dataset.i]);
   });
-  Array.prototype.forEach.call(document.querySelectorAll(".ruoli button"), function (b) {
+  // chi segna: RB, WR e TE (e i QB che corrono) ordinati per probabilita' di almeno un TD su corsa o ricezione
+  $("chi-segna").addEventListener("click", function () {
+    ruoli = { QB: 1, RB: 1, WR: 1, TE: 1 }; ord = "td_any"; verso = -1; quanti = 100;
+    Array.prototype.forEach.call(document.querySelectorAll(".ruoli button[data-r]"), function (b) {
+      b.classList.toggle("on", !!ruoli[b.dataset.r]); b.setAttribute("aria-pressed", ruoli[b.dataset.r] ? "true" : "false"); });
+    disegna(); });
+  Array.prototype.forEach.call(document.querySelectorAll(".ruoli button[data-r]"), function (b) {
     if (ruoli[b.dataset.r]) b.classList.add("on"); else b.classList.remove("on");
     b.setAttribute("aria-pressed", ruoli[b.dataset.r] ? "true" : "false");
     b.addEventListener("click", function () {
