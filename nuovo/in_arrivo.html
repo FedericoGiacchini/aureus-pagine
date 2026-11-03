@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUREUS · In arrivo</title>
+<link rel="icon" href="logo/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  /* Pagina provvisoria delle sezioni non ancora pronte (Week, Fantasy, Stats, Il modello): decisione di Federico,
+     3 novembre 2026. La sezione arriva dal parametro ?s= del link. */
+  html, body { margin: 0; min-height: 100%; background: #04060D; color: #F2F4FA; font-family: 'Inter', system-ui, sans-serif; }
+  .sfondo { position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 55% 45% at 0% 100%, rgba(40,90,255,0.22) 0%, rgba(4,6,13,0) 70%),
+                radial-gradient(ellipse 45% 40% at 100% 0%, rgba(255,140,80,0.20) 0%, rgba(4,6,13,0) 70%); }
+  .righe { position: fixed; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, rgba(255,255,255,0) 1px, rgba(255,255,255,0) 7px); }
+  header { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 1240px; margin: 0 auto; padding: 28px 24px; }
+  header a { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #FFFFFF; }
+  header span { font-weight: 600; font-size: 18px; letter-spacing: 0.22em; }
+  main { position: relative; max-width: 1240px; margin: 0 auto; padding: 14vh 24px 80px; }
+  .sezione { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #FFB27A; letter-spacing: 0.06em; }
+  h1 { margin: 14px 0 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(56px, 11vw, 120px); line-height: 1; }
+  p { margin: 18px 0 0; max-width: 560px; font-size: 17px; line-height: 1.6; color: #C9D0E2; }
+  .torna { display: inline-block; margin-top: 30px; padding: 12px 20px; border-radius: 999px; background: #FFFFFF; color: #04060D;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="sfondo" aria-hidden="true"></div>
+<div class="righe" aria-hidden="true"></div>
+<header>
+  <a href="index.html"><img src="logo/aureus_piccolo.svg" alt="" width="46" height="46"><span>AUREUS</span></a>
+</header>
+<main>
+  <div class="sezione" id="sezione">● SEZIONE</div>
+  <h1>In arrivo.</h1>
+  <p>Questa parte del sito è in costruzione. Intanto le partite della week sono nella home.</p>
+  <a class="torna" href="index.html">← Torna alle partite</a>
+</main>
+<script>
+  (function () {
+    var s = new URLSearchParams(location.search).get('s');
+    if (s) { document.getElementById('sezione').textContent = '● ' + s.toUpperCase(); document.title = 'AUREUS · ' + s + ' · In arrivo'; }
+  })();
+</script>
+</body>
+</html>

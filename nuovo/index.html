@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUREUS</title>
+
+<link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="logo/icona_180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#04060D}
+a{color:#FFFFFF}a:hover{color:#FFD9B8}
+.aur-carta{transition:transform 220ms ease, border-color 220ms ease, background 220ms ease}
+.aur-carta:hover{transform:translateY(-4px);border-color:rgba(255,255,255,0.4)}
+.aur-barra{transition:width 600ms cubic-bezier(.2,.8,.2,1)}
+@keyframes aurFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.aur-entra{animation:aurFade 420ms ease both}
+@keyframes aurPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,178,122,0.55)}50%{box-shadow:0 0 0 14px rgba(255,178,122,0)}}
+.aur-pulse{animation:aurPulse 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.aur-pulse,.aur-entra{animation:none}.aur-carta,.aur-barra{transition:none}}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+<template id="modello">
+<div style="position: relative; overflow: hidden; min-height: 100%; background: #04060D; color: #F2F4FA; font-family: 'Inter', system-ui, sans-serif;">
+  <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 1100px; background: radial-gradient(ellipse 55% 60% at 50% 62%, {{glow}} 0%, rgba(255,120,60,0.50) 22%, rgba(40,90,255,0.50) 48%, rgba(10,20,60,0.2) 70%, rgba(4,6,13,0) 85%);"></div>
+  <div aria-hidden="true" style="position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 55% 45% at 0% 100%, rgba(40,90,255,0.20) 0%, rgba(4,6,13,0) 70%), radial-gradient(ellipse 45% 40% at 100% 55%, rgba(227,24,55,0.14) 0%, rgba(4,6,13,0) 70%);"></div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, rgba(255,255,255,0) 1px, rgba(255,255,255,0) 7px);"></div>
+  <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 380px; background: linear-gradient(180deg, #04060D 10%, rgba(4,6,13,0) 100%);"></div>
+
+  <div style="position: relative; max-width: 1280px; margin: 0 auto; padding: 0 24px 80px;">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; padding: 22px 0;">
+      <a href="{{link.home}}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #FFFFFF;">
+        <img src="logo/aureus_piccolo.svg" alt="" width="46" height="46" style="display: block;">
+        <span style="font-family: 'Inter', system-ui, sans-serif; font-weight: 600; font-size: 18px; letter-spacing: 0.22em;">AUREUS</span>
+      </a>
+      <nav aria-label="Sezioni del sito" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 28px; flex: 1 1 auto; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
+        <a href="#partite" style="text-decoration: none; color: #FFFFFF;"><span style="color: {{glow}};">●</span> Partite</a>
+        <a href="in_arrivo.html?s=Week" style="text-decoration: none; color: #C9D0E2;">Week</a>
+        <a href="in_arrivo.html?s=Fantasy" style="text-decoration: none; color: #C9D0E2;">Fantasy</a>
+        <a href="in_arrivo.html?s=Stats" style="text-decoration: none; color: #C9D0E2;">Stats</a>
+        <a href="in_arrivo.html?s=Il%20modello" style="text-decoration: none; color: #C9D0E2;">Il modello</a>
+        <a href="{{link.archivio}}" style="text-decoration: none; color: #8F9BB8;">Sito vecchio ↗</a>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.22); font-family: 'JetBrains Mono', monospace; font-size: 13px;">
+        <span style="color: #FFFFFF; padding: 9px 14px;">{{hero.weekBreve}}</span>
+        <a href="{{link.week}}" style="text-decoration: none; color: #04060D; background: #FFFFFF; padding: 9px 16px; border-radius: 999px; font-weight: 600;">Esplora</a>
+      </div>
+    </header>
+
+    <section aria-label="Presentazione" style="position: relative; text-align: center; padding: clamp(10px, 3vh, 60px) 0 0; min-height: calc(100vh - 96px); box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; color: #E6EAF3;">{{hero.sopra}}</div>
+      <h1 style="margin: clamp(8px, 1.6vh, 18px) 0 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(56px, 15vh, 160px); line-height: 0.96; letter-spacing: -0.02em; color: #FFFFFF;">La partita, raccontata<br>prima del <span style="font-style: italic;">kickoff</span>.</h1>
+      <p style="margin: clamp(16px, 3.4vh, 40px) auto 0; font-family: 'Instrument Serif', serif; font-style: italic; font-size: clamp(28px, 5.6vh, 60px); line-height: 1.2; color: #E7B95A;">Ogni partita lascia un ricordo. Aureus non lo dimentica.</p>
+    </section>
+
+    <section id="partite" aria-label="Le partite della week" style="margin-top: 70px;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px;">
+        <div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #E6EAF3;">● Le partite</span><h2 style="margin: 10px 0 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 52px; line-height: 1;">{{hero.week}} <span style="font-style: italic; color: #AEB7CC;">{{partiteSotto}}</span></h2></div>
+        <div role="group" aria-label="Filtra le partite" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">
+          <sc-for list="{{filtri}}" as="f" hint-placeholder-count="6"><button type="button" onClick="{{f.pick}}" aria-pressed="{{f.on}}" style="{{f.style}}">{{f.nome}}</button></sc-for>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; margin-top: 22px;">
+        <sc-for list="{{carte}}" as="c" hint-placeholder-count="9">
+          <a href="{{c.href}}" class="aur-carta aur-entra" aria-label="{{c.aria}}" style="{{c.style}}">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #AEB7CC;"><span>{{c.quando}}</span><span style="{{c.statoStyle}}">{{c.stato}}</span></div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #8F9BB8; margin-top: 3px;">{{c.stadio}}</div>
+            <sc-for list="{{c.righe}}" as="r" hint-placeholder-count="2">
+              <div style="display: grid; grid-template-columns: 34px 1fr auto auto; gap: 10px; align-items: center; margin-top: 12px;">
+                <span style="{{r.badge}} position: relative; overflow: hidden;" aria-hidden="true">{{r.ab}}<sc-if value="{{r.haLogo}}" hint-placeholder-val="{{ false }}"><img src="{{r.logo}}" alt="" loading="lazy" onerror="this.remove()" style="position: absolute; inset: 3px; width: 28px; height: 28px; object-fit: contain; background: #FFFFFF; border-radius: 50%;"></sc-if></span>
+                <span style="font-size: 15px;"><b style="{{r.nomeStyle}}">{{r.nome}}</b></span>
+                <span style="font-family: 'Instrument Serif', serif; font-size: 26px;">{{r.punti}}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; min-width: 40px; text-align: right; color: #C9D0E2;">{{r.prob}}</span>
+              </div>
+            </sc-for>
+            <div style="display: flex; height: 6px; border-radius: 999px; overflow: hidden; gap: 2px; margin-top: 12px;"><span class="aur-barra" style="{{c.barA}}"></span><span style="{{c.barH}}"></span></div>
+            <div style="display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; font-size: 12.5px; color: #C9D0E2;"><span>{{c.nota}}</span><b style="{{c.esitoStyle}}">{{c.esito}}</b></div>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-label="Da non perdere" style="margin-top: 70px;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #E6EAF3;">● Da non perdere</span>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px;">
+        <sc-for list="{{scelte}}" as="s" hint-placeholder-count="3">
+          <a href="{{s.href}}" class="aur-carta" style="{{s.style}}">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;">{{s.tit}}</div>
+            <div style="font-family: 'Instrument Serif', serif; font-size: 38px; line-height: 1.05; margin-top: 10px;">{{s.match}}</div>
+            <div style="font-family: 'Instrument Serif', serif; font-size: 22px; margin-top: 6px; opacity: 0.9;">{{s.num}}</div>
+            <p style="margin: 10px 0 0; font-size: 14px; line-height: 1.5;">{{s.testo}}</p>
+          </a>
+        </sc-for>
+      </div>
+      <p style="margin: 10px 0 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8F9BB8;">Giorni secondo il calendario americano, orari italiani. Scelte con regole fisse sulle previsioni del modello: probabilità più vicina al 50%, più punti attesi in totale, margine atteso più largo.</p>
+    </section>
+
+    <section id="fantasy" aria-label="I giocatori della week" style="margin-top: 70px;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #E6EAF3;">● I giocatori della week</span>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 16px; margin-top: 16px; align-items: start;">
+        <sc-for list="{{classifiche}}" as="k" hint-placeholder-count="2">
+          <div style="border-radius: 26px; padding: 20px 22px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(6px);">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #AEB7CC;">{{k.tit}}</div>
+            <sc-for list="{{k.righe}}" as="x" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 18px 40px 1fr auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.07);">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8F9BB8;">{{x.n}}</span>
+                <span style="{{x.av}}" aria-hidden="true">{{x.ini}}<sc-if value="{{x.haFoto}}" hint-placeholder-val="{{ false }}"><img src="{{x.foto}}" alt="" loading="lazy" onerror="this.remove()" style="{{x.fotoStyle}}"></sc-if></span>
+                <span><b style="font-size: 14.5px;">{{x.nome}}</b><br><span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #AEB7CC;">{{x.sotto}}</span></span>
+                <span style="font-family: 'Instrument Serif', serif; font-size: 28px; color: {{k.col}};">{{x.v}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+        <div style="border-radius: 26px; padding: 20px 22px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(6px);">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #AEB7CC;">FANTASY · PUNTI PREVISTI</span>
+            <div role="group" aria-label="Formato" style="display: flex; gap: 2px; padding: 3px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); font-family: 'JetBrains Mono', monospace; font-size: 11px;"><sc-for list="{{formati}}" as="f" hint-placeholder-count="3"><button type="button" onClick="{{f.pick}}" aria-pressed="{{f.on}}" style="{{f.style}}">{{f.nome}}</button></sc-for></div>
+          </div>
+          <div role="tablist" aria-label="Ruolo" style="display: flex; gap: 4px; margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px;"><sc-for list="{{ruoliF}}" as="f" hint-placeholder-count="5"><button type="button" role="tab" onClick="{{f.pick}}" aria-selected="{{f.on}}" style="{{f.style}}">{{f.nome}}</button></sc-for></div>
+          <sc-for list="{{fantasy}}" as="x" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: 18px 40px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.07);">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8F9BB8;">{{x.n}}</span>
+              <span style="{{x.av}}" aria-hidden="true">{{x.ini}}<sc-if value="{{x.haFoto}}" hint-placeholder-val="{{ false }}"><img src="{{x.foto}}" alt="" loading="lazy" onerror="this.remove()" style="{{x.fotoStyle}}"></sc-if></span>
+              <span><b style="font-size: 15px;">{{x.nome}}</b><br><span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #AEB7CC;">{{x.sotto}}</span></span>
+              <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 90px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.08);"><div class="aur-barra" style="{{x.bar}}"></div></div><span style="font-family: 'Instrument Serif', serif; font-size: 28px; min-width: 52px; text-align: right;">{{x.v}}</span></div>
+            </div>
+          </sc-for>
+          <a href="{{link.sleeper}}" style="display: inline-block; margin-top: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-decoration: none; color: {{glow}};">Connetti Sleeper per la previsione della tua squadra →</a>
+        </div>
+      </div>
+      <p style="margin: 10px 0 0; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8F9BB8;">Probabilità di almeno un evento dal valore atteso del modello (ipotesi di Poisson). Punti fantasy con il punteggio standard di Sleeper.</p>
+    </section>
+
+    <section aria-label="Come va il modello" style="margin-top: 70px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: stretch;">
+      <div style="border-radius: 28px; padding: 24px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #AEB7CC;">● COM’È ANDATA LA {{scorsa.tit}}</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 14px; align-items: baseline;">
+          <div><span style="font-family: 'Instrument Serif', serif; font-size: 58px;">{{scorsa.giusti}}</span><div style="font-size: 13px; color: #C9D0E2;">vincitori indovinati</div></div>
+          <div><span style="font-family: 'Instrument Serif', serif; font-size: 58px;">{{scorsa.brier}}</span><div style="font-size: 13px; color: #C9D0E2;">Brier della week (più basso è meglio, 0,25 = moneta)</div></div>
+        </div>
+        <div style="margin-top: 16px; padding: 16px 18px; border-radius: 20px; background: rgba(76,155,255,0.14); border: 1px solid rgba(120,170,255,0.5); font-size: 15px; line-height: 1.5;"><b>La sorpresa:</b> {{scorsa.sorpresa}}</div>
+      </div>
+      <div id="modello" style="border-radius: 28px; padding: 24px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #AEB7CC;">● IL MODELLO, STAGIONE PER STAGIONE · vincitori giusti</div>
+        <div style="display: flex; align-items: flex-end; gap: 10px; height: 170px; margin-top: 18px;">
+          <sc-for list="{{stagioni}}" as="s" hint-placeholder-count="8">
+            <div style="flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%;" title="{{s.title}}">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">{{s.pct}}</span>
+              <span class="aur-barra" style="{{s.bar}}"></span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #AEB7CC;">{{s.anno}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <p style="margin: 12px 0 0; font-size: 13px; line-height: 1.5; color: #C9D0E2;">Ogni stagione prevista partita per partita usando solo le partite giocate prima: il modello non ha mai visto il futuro. {{stagioniNota}}</p>
+      </div>
+    </section>
+
+    <footer style="margin-top: 70px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8F9BB8; text-align: center;">Previsioni statistiche fatte prima del kickoff, per divertimento: non sono consigli di scommessa. Dati nflverse (CC-BY 4.0), FTN Data via nflverse (CC-BY-SA 4.0), PFR, meteo Open-Meteo e NWS.</footer>
+  </div>
+</div>
+</template>
+<script>window.AUREUS_HOME = {"stagione":2026,"week":8,"ora":null,"squadre":{"ARI":{"nome":"Cardinals","col":"#97233F","col2":"#000000","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/ari.png"},"ATL":{"nome":"Falcons","col":"#A71930","col2":"#000000","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/atl.png"},"BAL":{"nome":"Ravens","col":"#241773","col2":"#9E7C0C","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/bal.png"},"BUF":{"nome":"Bills","col":"#00338D","col2":"#C60C30","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/buf.png"},"CAR":{"nome":"Panthers","col":"#0085CA","col2":"#000000","logo":"https://a.espncdn.com/i/teamlogos/nfl/500-dark/car.png"},"CHI":{"nome":"Bears","col":"#0B162A","col2":"#E64100","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/chi.png"},"CIN":{"nome":"Bengals","col":"#FB4F14","col2":"#000000","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/cin.png"},"CLE":{"nome":"Browns","col":"#FF3C00","col2":"#311D00","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/cle.png"},"DAL":{"nome":"Cowboys","col":"#002244","col2":"#B0B7BC","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/dal.png"},"DEN":{"nome":"Broncos","col":"#002244","col2":"#FB4F14","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/den.png"},"DET":{"nome":"Lions","col":"#0076B6","col2":"#B0B7BC","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/det.png"},"GB":{"nome":"Packers","col":"#203731","col2":"#FFB612","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/gb.png"},"HOU":{"nome":"Texans","col":"#03202F","col2":"#A71930","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/hou.png"},"IND":{"nome":"Colts","col":"#002C5F","col2":"#a5acaf","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/ind.png"},"JAX":{"nome":"Jaguars","col":"#006778","col2":"#000000","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/jax.png"},"KC":{"nome":"Chiefs","col":"#E31837","col2":"#FFB612","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/kc.png"},"LA":{"nome":"Rams","col":"#003594","col2":"#FFD100","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/lar.png"},"LAC":{"nome":"Chargers","col":"#007BC7","col2":"#ffc20e","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/lac.png"},"LV":{"nome":"Raiders","col":"#000000","col2":"#A5ACAF","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/lv.png"},"MIA":{"nome":"Dolphins","col":"#008E97","col2":"#F58220","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/mia.png"},"MIN":{"nome":"Vikings","col":"#4F2683","col2":"#FFC62F","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/min.png"},"NE":{"nome":"Patriots","col":"#002244","col2":"#C60C30","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/ne.png"},"NO":{"nome":"Saints","col":"#D3BC8D","col2":"#000000","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/no.png"},"NYG":{"nome":"Giants","col":"#0B2265","col2":"#A71930","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png"},"NYJ":{"nome":"Jets","col":"#003F2D","col2":"#000000","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png"},"PHI":{"nome":"Eagles","col":"#004C54","col2":"#A5ACAF","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/phi.png"},"PIT":{"nome":"Steelers","col":"#000000","col2":"#FFB612","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/pit.png"},"SEA":{"nome":"Seahawks","col":"#002244","col2":"#69be28","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/sea.png"},"SF":{"nome":"49ers","col":"#AA0000","col2":"#B3995D","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/sf.png"},"TB":{"nome":"Buccaneers","col":"#A71930","col2":"#322F2B","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/tb.png"},"TEN":{"nome":"Titans","col":"#4495D2","col2":"#D50A0A","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/ten.png"},"WAS":{"nome":"Commanders","col":"#5A1414","col2":"#FFB612","logo":"https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png"}},"partite":[{"id":"2026_08_CAR_GB","ko":"2026-10-30T00:15:00+00:00","casa":"GB","osp":"CAR","stadio":"Lambeau Field","ph":28.0,"pa":22.4,"pw":0.68,"fin":[19,27],"giusto":true},{"id":"2026_08_ARI_DAL","ko":"2026-11-01T18:00:00+00:00","casa":"DAL","osp":"ARI","stadio":"AT&T Stadium","ph":31.1,"pa":22.5,"pw":0.765,"fin":[33,30],"giusto":false},{"id":"2026_08_ATL_TB","ko":"2026-11-01T18:00:00+00:00","casa":"TB","osp":"ATL","stadio":"Raymond James Stadium","ph":21.3,"pa":18.4,"pw":0.596,"fin":[0,16],"giusto":true},{"id":"2026_08_BAL_BUF","ko":"2026-11-01T18:00:00+00:00","casa":"BUF","osp":"BAL","stadio":"Highmark Stadium","ph":30.9,"pa":22.5,"pw":0.762,"fin":[10,36],"giusto":true},{"id":"2026_08_CLE_PIT","ko":"2026-11-01T18:00:00+00:00","casa":"PIT","osp":"CLE","stadio":"Acrisure Stadium","ph":24.1,"pa":20.2,"pw":0.629,"fin":[6,27],"giusto":true},{"id":"2026_08_IND_JAX","ko":"2026-11-01T18:00:00+00:00","casa":"JAX","osp":"IND","stadio":"EverBank Stadium","ph":26.1,"pa":16.6,"pw":0.787,"fin":[7,42],"giusto":true},{"id":"2026_08_LV_NYJ","ko":"2026-11-01T18:00:00+00:00","casa":"NYJ","osp":"LV","stadio":"MetLife Stadium","ph":24.6,"pa":22.8,"pw":0.56,"fin":[38,33],"giusto":false},{"id":"2026_08_MIN_DET","ko":"2026-11-01T18:00:00+00:00","casa":"DET","osp":"MIN","stadio":"Ford Field","ph":24.7,"pa":23.3,"pw":0.545,"fin":[15,19],"giusto":true},{"id":"2026_08_TEN_CIN","ko":"2026-11-01T18:00:00+00:00","casa":"CIN","osp":"TEN","stadio":"Paycor Stadium","ph":30.7,"pa":20.0,"pw":0.815,"fin":[36,43],"giusto":true},{"id":"2026_08_LAC_LA","ko":"2026-11-01T21:05:00+00:00","casa":"LA","osp":"LAC","stadio":"SoFi Stadium","ph":26.6,"pa":19.1,"pw":0.735,"fin":[9,24],"giusto":true},{"id":"2026_08_KC_DEN","ko":"2026-11-01T21:25:00+00:00","casa":"DEN","osp":"KC","stadio":"Empower Field at Mile High","ph":20.8,"pa":23.1,"pw":0.423,"fin":[24,28],"giusto":false},{"id":"2026_08_NE_MIA","ko":"2026-11-01T21:25:00+00:00","casa":"MIA","osp":"NE","stadio":"Hard Rock Stadium","ph":16.0,"pa":21.7,"pw":0.317,"fin":[24,19],"giusto":true},{"id":"2026_08_PHI_WAS","ko":"2026-11-02T01:20:00+00:00","casa":"WAS","osp":"PHI","stadio":"Northwest Stadium","ph":25.0,"pa":17.5,"pw":0.736,"fin":[10,27],"giusto":true},{"id":"2026_08_CHI_SEA","ko":"2026-11-03T01:15:00+00:00","casa":"SEA","osp":"CHI","stadio":"Lumen Field","ph":23.0,"pa":21.4,"pw":0.554,"fin":null,"giusto":null}],"bilancio":[{"stagione":2026,"n":119,"giusti":76,"brier":0.2236},{"stagione":2025,"n":284,"giusti":190,"brier":0.2178},{"stagione":2024,"n":285,"giusti":201,"brier":0.2014},{"stagione":2023,"n":285,"giusti":189,"brier":0.2241},{"stagione":2022,"n":282,"giusti":188,"brier":0.2132},{"stagione":2021,"n":284,"giusti":183,"brier":0.2208},{"stagione":2020,"n":268,"giusti":178,"brier":0.2137},{"stagione":2019,"n":266,"giusti":171,"brier":0.2198}],"previste":6620,"dal":2002,"scorsa":{"week":7,"n":14,"giusti":8,"brier":0.247,"sorpresa":{"vince":"NYG","perde":"HOU","p":21.0,"fin":[27,21],"casa":"HOU","osp":"NYG"}},"td":[{"nome":"Javonte Williams","pos":"RB","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4361579.png","p":71.0},{"nome":"James Cook","pos":"RB","team":"BUF","avv":"BAL","gid":"2026_08_BAL_BUF","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4379399.png","p":62.0},{"nome":"Bijan Robinson","pos":"RB","team":"ATL","avv":"TB","gid":"2026_08_ATL_TB","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4430807.png","p":60.0},{"nome":"Josh Jacobs","pos":"RB","team":"GB","avv":"CAR","gid":"2026_08_CAR_GB","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4047365.png","p":58.0},{"nome":"Jahmyr Gibbs","pos":"RB","team":"DET","avv":"MIN","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4429795.png","p":58.0},{"nome":"Chuba Hubbard","pos":"RB","team":"CAR","avv":"GB","gid":"2026_08_CAR_GB","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4241416.png","p":56.0}],"sack":[{"nome":"Aidan Hutchinson","pos":"DE","team":"DET","avv":"MIN","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4372099.png","p":57.0},{"nome":"Greg Rousseau","pos":"LB","team":"BUF","avv":"BAL","gid":"2026_08_BAL_BUF","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4362506.png","p":52.0},{"nome":"Byron Young","pos":"LB","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4875196.png","p":52.0},{"nome":"T.J. Watt","pos":"OLB","team":"PIT","avv":"CLE","gid":"2026_08_CLE_PIT","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3045282.png","p":51.0},{"nome":"Maxx Crosby","pos":"DE","team":"LV","avv":"NYJ","gid":"2026_08_LV_NYJ","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3916655.png","p":50.0},{"nome":"Josh Hines-Allen","pos":"DE","team":"JAX","avv":"IND","gid":"2026_08_IND_JAX","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3915239.png","p":48.0}],"fantasy":{"QB":{"std":[{"nome":"Josh Allen","pos":"QB","team":"BUF","avv":"BAL","gid":"2026_08_BAL_BUF","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3918298.png","v":23.3},{"nome":"Joe Burrow","pos":"QB","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3915511.png","v":20.9},{"nome":"Dak Prescott","pos":"QB","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/2577417.png","v":20.7},{"nome":"Jayden Daniels","pos":"QB","team":"WAS","avv":"PHI","gid":"2026_08_PHI_WAS","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4426348.png","v":18.8},{"nome":"Kyler Murray","pos":"QB","team":"MIN","avv":"DET","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3917315.png","v":18.8}],"half":[{"nome":"Josh Allen","pos":"QB","team":"BUF","avv":"BAL","gid":"2026_08_BAL_BUF","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3918298.png","v":23.3},{"nome":"Joe Burrow","pos":"QB","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3915511.png","v":20.9},{"nome":"Dak Prescott","pos":"QB","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/2577417.png","v":20.7},{"nome":"Jayden Daniels","pos":"QB","team":"WAS","avv":"PHI","gid":"2026_08_PHI_WAS","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4426348.png","v":18.8},{"nome":"Kyler Murray","pos":"QB","team":"MIN","avv":"DET","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3917315.png","v":18.8}],"ppr":[{"nome":"Josh Allen","pos":"QB","team":"BUF","avv":"BAL","gid":"2026_08_BAL_BUF","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3918298.png","v":23.3},{"nome":"Joe Burrow","pos":"QB","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3915511.png","v":20.9},{"nome":"Dak Prescott","pos":"QB","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/2577417.png","v":20.7},{"nome":"Jayden Daniels","pos":"QB","team":"WAS","avv":"PHI","gid":"2026_08_PHI_WAS","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4426348.png","v":18.8},{"nome":"Kyler Murray","pos":"QB","team":"MIN","avv":"DET","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3917315.png","v":18.8}]},"RB":{"std":[{"nome":"Bijan Robinson","pos":"RB","team":"ATL","avv":"TB","gid":"2026_08_ATL_TB","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4430807.png","v":17.9},{"nome":"Javonte Williams","pos":"RB","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4361579.png","v":17.6},{"nome":"Jahmyr Gibbs","pos":"RB","team":"DET","avv":"MIN","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4429795.png","v":17.2},{"nome":"James Cook","pos":"RB","team":"BUF","avv":"BAL","gid":"2026_08_BAL_BUF","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4379399.png","v":15.8},{"nome":"Chase Brown","pos":"RB","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4362238.png","v":14.4}],"half":[{"nome":"Bijan Robinson","pos":"RB","team":"ATL","avv":"TB","gid":"2026_08_ATL_TB","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4430807.png","v":19.7},{"nome":"Jahmyr Gibbs","pos":"RB","team":"DET","avv":"MIN","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4429795.png","v":19.5},{"nome":"Javonte Williams","pos":"RB","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4361579.png","v":18.7},{"nome":"James Cook","pos":"RB","team":"BUF","avv":"BAL","gid":"2026_08_BAL_BUF","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4379399.png","v":16.8},{"nome":"Chase Brown","pos":"RB","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4362238.png","v":16.7}],"ppr":[{"nome":"Jahmyr Gibbs","pos":"RB","team":"DET","avv":"MIN","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4429795.png","v":21.7},{"nome":"Bijan Robinson","pos":"RB","team":"ATL","avv":"TB","gid":"2026_08_ATL_TB","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4430807.png","v":21.6},{"nome":"Javonte Williams","pos":"RB","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4361579.png","v":19.7},{"nome":"Chase Brown","pos":"RB","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4362238.png","v":19.1},{"nome":"James Cook","pos":"RB","team":"BUF","avv":"BAL","gid":"2026_08_BAL_BUF","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4379399.png","v":17.7}]},"WR":{"std":[{"nome":"Puka Nacua","pos":"WR","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4426515.png","v":16.5},{"nome":"Ja'Marr Chase","pos":"WR","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4362628.png","v":13.1},{"nome":"CeeDee Lamb","pos":"WR","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4241389.png","v":13.1},{"nome":"Jaxon Smith-Njigba","pos":"WR","team":"SEA","avv":"CHI","gid":"2026_08_CHI_SEA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4430878.png","v":12.4},{"nome":"Amon-Ra St. Brown","pos":"WR","team":"DET","avv":"MIN","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4374302.png","v":11.0}],"half":[{"nome":"Puka Nacua","pos":"WR","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4426515.png","v":20.9},{"nome":"Ja'Marr Chase","pos":"WR","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4362628.png","v":16.5},{"nome":"CeeDee Lamb","pos":"WR","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4241389.png","v":16.4},{"nome":"Jaxon Smith-Njigba","pos":"WR","team":"SEA","avv":"CHI","gid":"2026_08_CHI_SEA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4430878.png","v":16.4},{"nome":"Amon-Ra St. Brown","pos":"WR","team":"DET","avv":"MIN","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4374302.png","v":14.6}],"ppr":[{"nome":"Puka Nacua","pos":"WR","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4426515.png","v":25.3},{"nome":"Jaxon Smith-Njigba","pos":"WR","team":"SEA","avv":"CHI","gid":"2026_08_CHI_SEA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4430878.png","v":20.4},{"nome":"Ja'Marr Chase","pos":"WR","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4362628.png","v":19.8},{"nome":"CeeDee Lamb","pos":"WR","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4241389.png","v":19.7},{"nome":"Amon-Ra St. Brown","pos":"WR","team":"DET","avv":"MIN","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4374302.png","v":18.2}]},"TE":{"std":[{"nome":"Trey McBride","pos":"TE","team":"ARI","avv":"DAL","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4361307.png","v":10.1},{"nome":"Brock Bowers","pos":"TE","team":"LV","avv":"NYJ","gid":"2026_08_LV_NYJ","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4432665.png","v":8.2},{"nome":"Tucker Kraft","pos":"TE","team":"GB","avv":"CAR","gid":"2026_08_CAR_GB","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4572680.png","v":7.3},{"nome":"Dallas Goedert","pos":"TE","team":"PHI","avv":"WAS","gid":"2026_08_PHI_WAS","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3121023.png","v":7.3},{"nome":"Hunter Henry","pos":"TE","team":"NE","avv":"MIA","gid":"2026_08_NE_MIA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3046439.png","v":7.0}],"half":[{"nome":"Trey McBride","pos":"TE","team":"ARI","avv":"DAL","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4361307.png","v":14.0},{"nome":"Brock Bowers","pos":"TE","team":"LV","avv":"NYJ","gid":"2026_08_LV_NYJ","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4432665.png","v":11.0},{"nome":"Dallas Goedert","pos":"TE","team":"PHI","avv":"WAS","gid":"2026_08_PHI_WAS","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3121023.png","v":10.2},{"nome":"Hunter Henry","pos":"TE","team":"NE","avv":"MIA","gid":"2026_08_NE_MIA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3046439.png","v":9.4},{"nome":"Tucker Kraft","pos":"TE","team":"GB","avv":"CAR","gid":"2026_08_CAR_GB","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4572680.png","v":9.4}],"ppr":[{"nome":"Trey McBride","pos":"TE","team":"ARI","avv":"DAL","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4361307.png","v":17.8},{"nome":"Brock Bowers","pos":"TE","team":"LV","avv":"NYJ","gid":"2026_08_LV_NYJ","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4432665.png","v":13.7},{"nome":"Dallas Goedert","pos":"TE","team":"PHI","avv":"WAS","gid":"2026_08_PHI_WAS","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3121023.png","v":13.2},{"nome":"Hunter Henry","pos":"TE","team":"NE","avv":"MIA","gid":"2026_08_NE_MIA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3046439.png","v":11.8},{"nome":"Colston Loveland","pos":"TE","team":"CHI","avv":"SEA","gid":"2026_08_CHI_SEA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4723086.png","v":11.6}]},"K":{"std":[{"nome":"Brandon Aubrey","pos":"K","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3953687.png","v":10.7},{"nome":"Evan McPherson","pos":"K","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4360234.png","v":10.5},{"nome":"Brandon McManus","pos":"K","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/16339.png","v":9.9},{"nome":"Will Reichard","pos":"K","team":"MIN","avv":"DET","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4567104.png","v":9.7},{"nome":"Chris Boswell","pos":"K","team":"PIT","avv":"CLE","gid":"2026_08_CLE_PIT","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/17372.png","v":9.6}],"half":[{"nome":"Brandon Aubrey","pos":"K","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3953687.png","v":10.7},{"nome":"Evan McPherson","pos":"K","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4360234.png","v":10.5},{"nome":"Brandon McManus","pos":"K","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/16339.png","v":9.9},{"nome":"Will Reichard","pos":"K","team":"MIN","avv":"DET","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4567104.png","v":9.7},{"nome":"Chris Boswell","pos":"K","team":"PIT","avv":"CLE","gid":"2026_08_CLE_PIT","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/17372.png","v":9.6}],"ppr":[{"nome":"Brandon Aubrey","pos":"K","team":"DAL","avv":"ARI","gid":"2026_08_ARI_DAL","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/3953687.png","v":10.7},{"nome":"Evan McPherson","pos":"K","team":"CIN","avv":"TEN","gid":"2026_08_TEN_CIN","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4360234.png","v":10.5},{"nome":"Brandon McManus","pos":"K","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/16339.png","v":9.9},{"nome":"Will Reichard","pos":"K","team":"MIN","avv":"DET","gid":"2026_08_MIN_DET","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/4567104.png","v":9.7},{"nome":"Chris Boswell","pos":"K","team":"PIT","avv":"CLE","gid":"2026_08_CLE_PIT","foto":"https://a.espncdn.com/i/headshots/nfl/players/full/17372.png","v":9.6}]},"DST":{"std":[{"nome":"Patriots D/ST","pos":"D/ST","team":"NE","avv":"MIA","gid":"2026_08_NE_MIA","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/ne.png","v":10.2},{"nome":"Jaguars D/ST","pos":"D/ST","team":"JAX","avv":"IND","gid":"2026_08_IND_JAX","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/jax.png","v":9.3},{"nome":"Commanders D/ST","pos":"D/ST","team":"WAS","avv":"PHI","gid":"2026_08_PHI_WAS","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png","v":8.9},{"nome":"Rams D/ST","pos":"D/ST","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/lar.png","v":8.6},{"nome":"Steelers D/ST","pos":"D/ST","team":"PIT","avv":"CLE","gid":"2026_08_CLE_PIT","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/pit.png","v":8.4}],"half":[{"nome":"Patriots D/ST","pos":"D/ST","team":"NE","avv":"MIA","gid":"2026_08_NE_MIA","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/ne.png","v":10.2},{"nome":"Jaguars D/ST","pos":"D/ST","team":"JAX","avv":"IND","gid":"2026_08_IND_JAX","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/jax.png","v":9.3},{"nome":"Commanders D/ST","pos":"D/ST","team":"WAS","avv":"PHI","gid":"2026_08_PHI_WAS","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png","v":8.9},{"nome":"Rams D/ST","pos":"D/ST","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/lar.png","v":8.6},{"nome":"Steelers D/ST","pos":"D/ST","team":"PIT","avv":"CLE","gid":"2026_08_CLE_PIT","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/pit.png","v":8.4}],"ppr":[{"nome":"Patriots D/ST","pos":"D/ST","team":"NE","avv":"MIA","gid":"2026_08_NE_MIA","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/ne.png","v":10.2},{"nome":"Jaguars D/ST","pos":"D/ST","team":"JAX","avv":"IND","gid":"2026_08_IND_JAX","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/jax.png","v":9.3},{"nome":"Commanders D/ST","pos":"D/ST","team":"WAS","avv":"PHI","gid":"2026_08_PHI_WAS","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png","v":8.9},{"nome":"Rams D/ST","pos":"D/ST","team":"LA","avv":"LAC","gid":"2026_08_LAC_LA","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/lar.png","v":8.6},{"nome":"Steelers D/ST","pos":"D/ST","team":"PIT","avv":"CLE","gid":"2026_08_CLE_PIT","foto":"https://a.espncdn.com/i/teamlogos/nfl/500/pit.png","v":8.4}]}},"link":{"home":"index.html","archivio":"../index.html","sleeper":"../sleeper.html","stats":"../giocatori.html","modello":"../index.html#modello","week":"../2026/week_08/index.html","partita":"2026/week_08/{osp}_{casa}.html"}};</script>
+<script src="aureus_dc.js"></script>
+<script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { filtro: 'tutte', formato: 'ppr', ruoloF: 'WR' };
+  }
+  renderVals() {
+    const glow = this.props.glow ?? '#FFB27A';
+    const H = window.AUREUS_HOME;
+    const L = H.link || { home: '#', archivio: '#', sleeper: '#', stats: '#', modello: '#', week: '#partite', partita: null };
+    const link = L;
+    const fmt = (x, d) => (x === null || x === undefined || isNaN(x)) ? '–' : Number(x).toFixed(d === undefined ? 1 : d).replace('.', ',').replace('-', '−');
+    const ora = H.ora ? new Date(H.ora) : new Date();
+    const SQ = H.squadre;
+    const nick = (t) => (SQ[t] && SQ[t].nome) || t;
+    const tz = { timeZone: 'Europe/Rome' };
+    const giorno = (d) => d.toLocaleDateString('it-IT', { weekday: 'long', timeZone: 'America/New_York' });
+    const quando = (d) => d.toLocaleDateString('it-IT', Object.assign({ weekday: 'short', day: 'numeric', month: 'short' }, tz)).replace(/\./g, '') + ' · ' + d.toLocaleTimeString('it-IT', Object.assign({ hour: '2-digit', minute: '2-digit' }, tz));
+    const DUR = 3.5 * 3600 * 1000;
+    const P = H.partite.map((g) => {
+      const ko = new Date(g.ko.replace(' ', 'T').replace(/\+(\d\d)$/, '+$1:00'));
+      const stato = g.fin ? 'giocata' : (ora >= ko ? (ora - ko < DUR ? 'in corso' : 'in attesa del risultato') : 'da giocare');
+      return Object.assign({}, g, { koD: ko, statoK: stato, giorno: giorno(ko) });
+    });
+    const giocate = P.filter((g) => g.fin);
+    const giuste = giocate.filter((g) => g.giusto).length;
+    const prossima = P.filter((g) => g.statoK === 'da giocare').sort((a, b) => a.koD - b.koD)[0];
+    const inCorso = P.filter((g) => g.statoK === 'in corso');
+    let conto;
+    if (inCorso.length) conto = '● In corso: ' + inCorso.map((g) => g.osp + ' @ ' + g.casa).join(', ') + (prossima ? ' · poi ' + prossima.osp + ' @ ' + prossima.casa : '');
+    else if (prossima) { const m = Math.max(0, Math.round((prossima.koD - ora) / 60000)); const gg = Math.floor(m / 1440); const hh = Math.floor((m % 1440) / 60); const mm = m % 60; conto = 'Prossimo kickoff: ' + prossima.osp + ' @ ' + prossima.casa + ' tra ' + (gg ? gg + ' g ' : '') + hh + ' h ' + String(mm).padStart(2, '0') + ' min'; }
+    else conto = (giocate.length === P.length ? 'Week finita: ' : 'Partite finite, risultati in arrivo: ') + giuste + (giuste === 1 ? ' vincitore indovinato' : ' vincitori indovinati') + ' su ' + giocate.length;
+    const b26 = H.bilancio[0]; const prec = H.bilancio.slice(1);
+    const tot = prec.reduce((a, s) => [a[0] + s.giusti, a[1] + s.n], [0, 0]);
+    const hero = {
+      week: 'Week ' + H.week, weekBreve: 'Week ' + H.week, dal: H.dal,
+      sopra: 'STAGIONE ' + H.stagione + ' · WEEK ' + H.week + ' · ' + P.length + ' PARTITE',
+      conto
+    };
+    // filtri
+    const fi = this.state.filtro;
+    const giorni = [...new Set(P.map((g) => g.giorno))];
+    const FIL = [['tutte', 'Tutte'], ['dagiocare', 'Da giocare'], ['giocate', 'Giocate']].concat(giorni.map((d) => ['g:' + d, d.charAt(0).toUpperCase() + d.slice(1)]));
+    const filtri = FIL.map(([k, n]) => ({ nome: n, on: k === fi ? 'true' : 'false', pick: () => this.setState({ filtro: k }),
+      style: 'border: 0; cursor: pointer; padding: 8px 13px; border-radius: 999px; font: inherit; ' + (k === fi ? 'background: #FFFFFF; color: #04060D; font-weight: 600;' : 'background: transparent; color: #C9D0E2;') }));
+    const passa = (g) => fi === 'tutte' || (fi === 'dagiocare' && !g.fin) || (fi === 'giocate' && !!g.fin) || (fi.indexOf('g:') === 0 && g.giorno === fi.slice(2));
+    const badge = (t) => 'display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; font-family: \'JetBrains Mono\', monospace; font-size: 10px; font-weight: 700; color: #FFFFFF; background: ' + ((SQ[t] && SQ[t].col) || '#56636b') + '; box-shadow: inset 0 0 0 2px ' + ((SQ[t] && SQ[t].col2) || '#9aa7ad') + ';';
+    const carte = P.filter(passa).map((g) => {
+      const fav = g.pw >= 0.5 ? g.casa : g.osp; const mg = Math.abs(g.ph - g.pa);
+      const vincente = g.fin ? (g.fin[1] > g.fin[0] ? g.casa : g.osp) : null;
+      const riga = (t, punti, p, isCasa) => ({ ab: t, badge: badge(t), logo: (SQ[t] && SQ[t].logo) || '', haLogo: !!(SQ[t] && SQ[t].logo), noLogo: !(SQ[t] && SQ[t].logo), nome: nick(t), punti: g.fin ? String(isCasa ? g.fin[1] : g.fin[0]) : fmt(punti), prob: Math.round(100 * p) + '%',
+        nomeStyle: (g.fin ? (vincente === t ? 'color: #FFFFFF;' : 'color: #8F9BB8; font-weight: 500;') : (fav === t ? 'color: #FFFFFF;' : 'color: #C9D0E2; font-weight: 500;')) });
+      const colA = (SQ[g.osp] && SQ[g.osp].col) || '#56636b'; const colH = (SQ[g.casa] && SQ[g.casa].col) || '#56636b';
+      return {
+        aria: g.osp + ' at ' + g.casa + ': apri la partita', href: L.partita ? L.partita.replace('{osp}', g.osp).replace('{casa}', g.casa) : '#',
+        quando: quando(g.koD), stadio: g.stadio, stato: g.statoK === 'giocata' ? 'FINALE' : (g.statoK === 'in corso' ? '● IN CORSO' : g.statoK === 'da giocare' ? 'DA GIOCARE' : 'IN ATTESA'),
+        statoStyle: 'padding: 3px 8px; border-radius: 999px; ' + (g.statoK === 'in corso' ? 'background: ' + glow + '; color: #1A0E08; font-weight: 700;' : (g.fin ? 'background: rgba(255,255,255,0.14); color: #FFFFFF;' : 'background: transparent; border: 1px solid rgba(255,255,255,0.2);')),
+        righe: [riga(g.osp, g.pa, 1 - g.pw, false), riga(g.casa, g.ph, g.pw, true)],
+        barA: 'display: block; width: ' + (100 * (1 - g.pw)).toFixed(1) + '%; background: ' + colA + ';', barH: 'display: block; flex: 1 1 auto; background: ' + colH + ';',
+        nota: g.fin ? 'Previsto ' + fmt(g.pa) + '–' + fmt(g.ph) + ' · ' + nick(fav) + ' al ' + Math.round(100 * Math.max(g.pw, 1 - g.pw)) + '%' : (mg < 1 ? 'Partita in equilibrio' : nick(fav) + ' favoriti di ' + fmt(mg)),
+        esito: g.fin ? (g.giusto ? '✓ indovinata' : '✗ sbagliata') : '',
+        esitoStyle: g.fin ? (g.giusto ? 'color: ' + glow + ';' : 'color: #8FC1FF;') : '',
+        style: 'display: block; text-decoration: none; color: #FFFFFF; border-radius: 24px; padding: 18px 20px; background: ' + (g.statoK === 'in corso' ? 'rgba(255,178,122,0.12)' : 'rgba(255,255,255,0.06)') + '; border: 1px solid ' + (g.statoK === 'in corso' ? glow : 'rgba(255,255,255,0.14)') + '; backdrop-filter: blur(6px);'
+      };
+    });
+    const partiteSotto = giocate.length ? '· ' + giuste + (giuste === 1 ? ' indovinata' : ' indovinate') + ' su ' + giocate.length + (giocate.length === 1 ? ' giocata' : ' giocate') : '· da giocare';
+    // da non perdere (solo modello)
+    const bilico = P.slice().sort((a, b) => Math.abs(a.pw - 0.5) - Math.abs(b.pw - 0.5))[0];
+    const spara = P.slice().sort((a, b) => (b.ph + b.pa) - (a.ph + a.pa))[0];
+    const netta = P.slice().sort((a, b) => Math.abs(b.ph - b.pa) - Math.abs(a.ph - a.pa))[0];
+    const sc = (tit, g, num, testo, st) => ({ tit, href: L.partita ? L.partita.replace('{osp}', g.osp).replace('{casa}', g.casa) : '#', match: nick(g.osp) + ' @ ' + nick(g.casa), num, testo, style: 'display: block; text-decoration: none; border-radius: 26px; padding: 22px; ' + st });
+    const favN = (g) => nick(g.pw >= 0.5 ? g.casa : g.osp);
+    const scelte = [
+      sc('LA PIÙ IN BILICO', bilico, fmt(100 * Math.max(bilico.pw, 1 - bilico.pw), 1) + '% contro ' + fmt(100 * Math.min(bilico.pw, 1 - bilico.pw), 1) + '%', 'Il modello quasi non sceglie: ' + fmt(bilico.pa) + ' a ' + fmt(bilico.ph) + ' i punti attesi. ' + quando(bilico.koD) + '.', 'background: ' + glow + '; color: #1A0E08; box-shadow: 0 0 60px rgba(255,160,100,0.35);'),
+      sc('LA PIÙ SPETTACOLARE', spara, fmt(spara.ph + spara.pa) + ' punti attesi in totale', 'La partita con più punti previsti della week: ' + nick(spara.osp) + ' ' + fmt(spara.pa) + ', ' + nick(spara.casa) + ' ' + fmt(spara.ph) + '.', 'background: rgba(255,255,255,0.92); color: #04060D;'),
+      sc('LA PIÙ NETTA', netta, favN(netta) + ' di ' + fmt(Math.abs(netta.ph - netta.pa)) + ' punti', 'Il margine atteso più largo della week: ' + favN(netta) + ' al ' + Math.round(100 * Math.max(netta.pw, 1 - netta.pw)) + '%.' + (netta.fin ? ' Finale ' + netta.fin[0] + '–' + netta.fin[1] + '.' : ''), 'background: #2B5BD7; color: #FFFFFF; box-shadow: 0 0 60px rgba(60,110,255,0.35);')
+    ];
+    // classifiche
+    const sotto = (x) => x.pos + ' · ' + x.team + ' contro ' + x.avv;
+    // foto: cerchio col colore della squadra e le iniziali sotto; sopra la foto (il logo per la D/ST), tolta se non si carica
+    const iniziali = (n) => n.replace(' D/ST', '').split(' ').filter((w) => w && w[0] === w[0].toUpperCase()).slice(0, 2).map((w) => w[0]).join('');
+    const avatar = (x) => ({ ini: x.pos === 'D/ST' ? x.team : iniziali(x.nome), foto: x.foto || '', haFoto: !!x.foto,
+      av: 'position: relative; overflow: hidden; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; font-family: \'JetBrains Mono\', monospace; font-size: 11px; font-weight: 700; color: #FFFFFF; background: ' + ((SQ[x.team] && SQ[x.team].col) || '#56636b') + ';',
+      fotoStyle: x.pos === 'D/ST' ? 'position: absolute; inset: 4px; width: 32px; height: 32px; object-fit: contain; background: #FFFFFF; border-radius: 50%;'
+        : 'position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; background: ' + ((SQ[x.team] && SQ[x.team].col) || '#56636b') + ';' });
+    const classifiche = [
+      { tit: 'I TD PIÙ PROBABILI', col: glow, righe: H.td.map((x, i) => Object.assign({ n: i + 1, nome: x.nome, sotto: sotto(x), v: Math.round(x.p) + '%' }, avatar(x))) },
+      { tit: 'CACCIA AL SACK', col: '#8FC1FF', righe: H.sack.map((x, i) => Object.assign({ n: i + 1, nome: x.nome, sotto: sotto(x), v: Math.round(x.p) + '%' }, avatar(x))) }
+    ];
+    const FM = [['std', 'Standard'], ['half', '½ PPR'], ['ppr', 'PPR']];
+    const formati = FM.map(([k, n]) => ({ nome: n, on: k === this.state.formato ? 'true' : 'false', pick: () => this.setState({ formato: k }),
+      style: 'border: 0; cursor: pointer; padding: 6px 10px; border-radius: 999px; font: inherit; ' + (k === this.state.formato ? 'background: #FFFFFF; color: #04060D; font-weight: 600;' : 'background: transparent; color: #C9D0E2;') }));
+    const ruoliF = ['QB', 'RB', 'WR', 'TE', 'K', 'DST'].map((k) => ({ nome: k === 'DST' ? 'D/ST' : k, on: k === this.state.ruoloF ? 'true' : 'false', pick: () => this.setState({ ruoloF: k }),
+      style: 'cursor: pointer; padding: 7px 14px; border-radius: 999px; font: inherit; ' + (k === this.state.ruoloF ? 'background: ' + glow + '; color: #1A0E08; border: 0; font-weight: 600;' : 'background: transparent; color: #C9D0E2; border: 1px solid rgba(255,255,255,0.18);') }));
+    const LF = (H.fantasy[this.state.ruoloF] || { std: [], half: [], ppr: [] })[this.state.formato];
+    const mx = Math.max(1, ...LF.map((x) => x.v));
+    const fantasy = LF.map((x, i) => Object.assign({ n: i + 1, nome: x.nome, sotto: x.team + ' contro ' + x.avv, v: fmt(x.v), bar: 'height: 6px; border-radius: 999px; width: ' + Math.round(100 * x.v / mx) + '%; background: ' + glow + ';' }, avatar(x)));
+    const S = H.scorsa; const so = S.sorpresa;
+    const scorsa = { tit: 'WEEK ' + S.week, giusti: S.giusti + '/' + S.n, brier: fmt(S.brier, 3),
+      sorpresa: 'vincono i ' + nick(so.vince) + ' ' + (so.vince === so.casa ? 'in casa' : 'in trasferta') + ' contro i ' + nick(so.perde) + ' (' + so.fin[0] + '–' + so.fin[1] + '), dati dal modello al ' + Math.round(so.p) + '%.' };
+    const st = H.bilancio.slice().reverse();
+    const pmin = 50; const pmax = 75;
+    const stagioni = st.map((s) => { const p = 100 * s.giusti / s.n; return { anno: String(s.stagione), pct: Math.round(p) + '%', title: s.giusti + ' su ' + s.n + ', Brier ' + fmt(s.brier, 3),
+      bar: 'display: block; width: 100%; border-radius: 8px 8px 3px 3px; height: ' + Math.max(6, Math.round(130 * (p - pmin) / (pmax - pmin))) + 'px; background: ' + (s.stagione === H.stagione ? glow : 'rgba(255,255,255,0.45)') + ';' }; });
+    const stagioniNota = 'Il ' + H.stagione + ' è in corso (' + b26.n + ' partite).';
+    return { glow, link, hero, filtri, carte, partiteSotto, scelte, classifiche, formati, ruoliF, fantasy, scorsa, stagioni, stagioniNota };
+  }
+}
+
+var c = AureusMonta(document.getElementById('modello'), Component, document.getElementById('app'), {});
+setInterval(function () { c._disegna(); }, 60000);
+</script>
+</body>
+</html>
